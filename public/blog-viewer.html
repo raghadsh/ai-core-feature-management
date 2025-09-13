@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post - AI Core</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #8b5cf6;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #a855f7;
+        }
+
+        .back-link::before {
+            content: "←";
+            margin-right: 0.5rem;
+        }
+
+        .blog-post {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .blog-header {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .blog-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .blog-meta {
+            display: flex;
+            gap: 2rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .blog-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .blog-content h1,
+        .blog-content h2,
+        .blog-content h3,
+        .blog-content h4,
+        .blog-content h5,
+        .blog-content h6 {
+            color: #f1f5f9;
+            margin: 2rem 0 1rem 0;
+            font-weight: 600;
+        }
+
+        .blog-content h1 { font-size: 2rem; }
+        .blog-content h2 { font-size: 1.75rem; }
+        .blog-content h3 { font-size: 1.5rem; }
+
+        .blog-content p {
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+        }
+
+        .blog-content code {
+            background: rgba(139, 92, 246, 0.2);
+            color: #e2e8f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        .blog-content pre {
+            background: rgba(15, 15, 35, 0.9);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .blog-content pre code {
+            background: none;
+            padding: 0;
+            color: #e2e8f0;
+        }
+
+        .blog-content ul,
+        .blog-content ol {
+            margin: 1rem 0 1rem 2rem;
+            color: #cbd5e1;
+        }
+
+        .blog-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .blog-content blockquote {
+            border-left: 4px solid #8b5cf6;
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .blog-content a {
+            color: #8b5cf6;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .blog-content a:hover {
+            color: #a855f7;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #94a3b8;
+        }
+
+        .error {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/blog" class="back-link">Back to Blog</a>
+        
+        <div id="loading" class="loading">
+            <h2>Loading blog post...</h2>
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <h2>Post not found</h2>
+            <p>The blog post you're looking for doesn't exist.</p>
+        </div>
+
+        <article id="blogPost" class="blog-post" style="display: none;">
+            <div class="blog-header">
+                <h1 id="postTitle" class="blog-title"></h1>
+                <div class="blog-meta">
+                    <span id="postAuthor"></span>
+                    <span id="postDate"></span>
+                </div>
+            </div>
+            <div id="postContent" class="blog-content"></div>
+        </article>
+    </div>
+
+    <script>
+        // Simple MDX to HTML converter (basic implementation)
+        function convertMDXToHTML(mdxContent) {
+            // This is a simplified converter - in production, you'd use a proper MDX processor
+            let html = mdxContent
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
+                .replace(/^##### (.*$)/gim, '<h5>$1</h5>')
+                .replace(/^###### (.*$)/gim, '<h6>$1</h6>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/^(.*)$/gm, '<p>$1</p>')
+                .replace(/<p><h/g, '<h')
+                .replace(/<\/h([1-6])><\/p>/g, '</h$1>')
+                .replace(/<p><pre/g, '<pre')
+                .replace(/<\/pre><\/p>/g, '</pre>')
+                .replace(/<p><ul/g, '<ul')
+                .replace(/<\/ul><\/p>/g, '</ul>')
+                .replace(/<p><ol/g, '<ol')
+                .replace(/<\/ol><\/p>/g, '</ol>')
+                .replace(/<p><blockquote/g, '<blockquote')
+                .replace(/<\/blockquote><\/p>/g, '</blockquote>');
+
+            return html;
+        }
+
+        function parseFrontmatter(content) {
+            const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
+            const match = content.match(frontmatterRegex);
+            
+            if (match) {
+                const frontmatter = {};
+                const frontmatterContent = match[1];
+                const body = match[2];
+                
+                frontmatterContent.split('\n').forEach(line => {
+                    const [key, ...valueParts] = line.split(':');
+                    if (key && valueParts.length > 0) {
+                        frontmatter[key.trim()] = valueParts.join(':').trim().replace(/^["']|["']$/g, '');
+                    }
+                });
+                
+                return { frontmatter, body };
+            }
+            
+            return { frontmatter: {}, body: content };
+        }
+
+        async function loadBlogPost() {
+            const path = window.location.pathname;
+            const slug = path.split('/').pop();
+            
+            try {
+                const response = await fetch(`/blog/${slug}.mdx`);
+                if (!response.ok) {
+                    throw new Error('Post not found');
+                }
+                
+                const mdxContent = await response.text();
+                const { frontmatter, body } = parseFrontmatter(mdxContent);
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('blogPost').style.display = 'block';
+                
+                document.getElementById('postTitle').textContent = frontmatter.title || 'Untitled';
+                document.getElementById('postAuthor').textContent = `By ${frontmatter.author || 'Unknown'}`;
+                document.getElementById('postDate').textContent = new Date(frontmatter.date || Date.now()).toLocaleDateString();
+                
+                const htmlContent = convertMDXToHTML(body);
+                document.getElementById('postContent').innerHTML = htmlContent;
+                
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        // Load the blog post when the page loads
+        loadBlogPost();
+    </script>
+</body>
+</html>

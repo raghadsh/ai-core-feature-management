@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Blog - AI Core</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .blog-card {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+        }
+
+        .blog-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+        }
+
+        .blog-card .excerpt {
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .read-more {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .read-more:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #8b5cf6;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #a855f7;
+        }
+
+        .back-link::before {
+            content: "←";
+            margin-right: 0.5rem;
+        }
+
+        .coming-soon {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .coming-soon h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #94a3b8;
+        }
+
+        .coming-soon p {
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">Back to Home</a>
+        
+        <div class="header">
+            <h1>Engineering Blog</h1>
+            <p>Insights, tutorials, and deep dives into AI Core's technology and engineering practices.</p>
+        </div>
+
+        <div class="blog-grid" id="blogPosts">
+            <!-- Blog posts will be loaded here -->
+        </div>
+
+        <div class="coming-soon" id="comingSoon" style="display: none;">
+            <h2>🚧 Coming Soon</h2>
+            <p>We're working on some amazing content for our engineering blog. Check back soon for technical deep dives, tutorials, and insights from our team!</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample blog posts data
+        const blogPosts = [
+            {
+                title: "Getting Started with AI Core",
+                excerpt: "Learn how to get started with AI Core and build your first intelligent application.",
+                author: "AI Core Team",
+                date: "2024-01-15",
+                slug: "getting-started-with-ai-core"
+            },
+            {
+                title: "Advanced Prompting Techniques for Better AI Results",
+                excerpt: "Master the art of prompt engineering to get better results from AI models.",
+                author: "Sarah Chen",
+                date: "2024-01-20",
+                slug: "advanced-prompting-techniques"
+            }
+        ];
+
+        function renderBlogPosts() {
+            const container = document.getElementById('blogPosts');
+            const comingSoon = document.getElementById('comingSoon');
+            
+            if (blogPosts.length === 0) {
+                comingSoon.style.display = 'block';
+                container.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = blogPosts.map(post => `
+                <article class="blog-card">
+                    <div class="blog-meta">
+                        <span>By ${post.author}</span>
+                        <span>${new Date(post.date).toLocaleDateString()}</span>
+                    </div>
+                    <h2>${post.title}</h2>
+                    <p class="excerpt">${post.excerpt}</p>
+                    <a href="/blog/${post.slug}" class="read-more">Read More</a>
+                </article>
+            `).join('');
+        }
+
+        // Initialize
+        renderBlogPosts();
+    </script>
+</body>
+</html>

@@ -13,6 +13,27 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+// Blog routes
+app.get('/blog', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'blog', 'index.html'));
+});
+
+app.get('/blog/:slug', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'blog-viewer.html'));
+});
+
+app.get('/blog/:slug.mdx', (req, res) => {
+    const slug = req.params.slug;
+    const filePath = path.join(__dirname, 'public', 'blog', `${slug}.mdx`);
+    
+    // Check if file exists
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        res.status(404).send('Blog post not found');
+    }
+});
+
 // Session middleware
 app.use(session({
     secret: 'ai-core-secret-key-2024',

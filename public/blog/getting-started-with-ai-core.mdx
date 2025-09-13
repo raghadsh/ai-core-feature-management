@@ -1,0 +1,65 @@
+---
+title: "Getting Started with AI Core"
+date: "2024-01-15"
+author: "AI Core Team"
+excerpt: "Learn how to get started with AI Core and build your first intelligent application."
+---
+
+# Getting Started with AI Core
+
+Welcome to AI Core! This guide will help you build your first intelligent application using our powerful platform.
+
+## What is AI Core?
+
+AI Core is a comprehensive platform that provides:
+
+- **Pre-trained Models**: Access to state-of-the-art AI models
+- **Easy Integration**: Simple APIs for quick implementation
+- **Scalable Infrastructure**: Built to handle enterprise workloads
+- **Real-time Processing**: Low-latency inference capabilities
+
+## Quick Start
+
+### 1. Install the SDK
+
+```bash
+npm install @ai-core/sdk
+```
+
+### 2. Initialize the Client
+
+```javascript
+import { AICore } from '@ai-core/sdk';
+
+const client = new AICore({
+  apiKey: 'your-api-key',
+  environment: 'production'
+});
+```
+
+### 3. Make Your First Request
+
+```javascript
+const response = await client.generate({
+  model: 'gpt-4',
+  prompt: 'Hello, AI Core!',
+  maxTokens: 100
+});
+
+console.log(response.text);
+```
+
+## Best Practices
+
+- Always validate your inputs
+- Use appropriate model parameters
+- Implement proper error handling
+- Monitor your usage and costs
+
+## Next Steps
+
+Ready to build something amazing? Check out our [API documentation](/docs) or explore our [example projects](https://github.com/ai-core/examples).
+
+---
+
+*Have questions? Join our [community Discord](https://discord.gg/ai-core) or reach out to our support team.*
