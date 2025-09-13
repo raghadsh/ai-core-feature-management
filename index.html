@@ -57,6 +57,16 @@
             text-align: center;
         }
 
+        .header-logo {
+            margin-bottom: 1rem;
+        }
+
+        .header-logo .logo-image {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+        }
+
         .logo {
             display: flex;
             align-items: center;
@@ -726,29 +736,32 @@
 
     <div class="container">
         <div class="main-content">
-            <div class="header">
+        <div class="header">
+                <div class="header-logo">
+                    <img src="/light_logo.png" alt="ai core" class="logo-image">
+                </div>
                 <h1>Help shape ai core 🚀</h1>
                 <p>Suggest ideas, vote for what matters, and see what we're building.</p>
-            </div>
+        </div>
 
             <div class="page-nav">
                 <button class="page-nav-btn active" data-page="features">⚡ Features</button>
                 <button class="page-nav-btn" data-page="roadmap">🗺️ Roadmap</button>
-            </div>
+        </div>
 
             <!-- Features Page -->
             <div class="page-section active" id="featuresPage">
-                <div class="features-header">
+            <div class="features-header">
                     <h2>⚡ Ideas & Requests</h2>
-                    <div class="sort-options">
-                        <button class="sort-btn active" data-sort="votes">Most Voted</button>
-                        <button class="sort-btn" data-sort="newest">Newest</button>
-                        <button class="sort-btn" data-sort="oldest">Oldest</button>
-                    </div>
+                <div class="sort-options">
+                    <button class="sort-btn active" data-sort="votes">Most Voted</button>
+                    <button class="sort-btn" data-sort="newest">Newest</button>
+                    <button class="sort-btn" data-sort="oldest">Oldest</button>
                 </div>
-                <div id="featuresContainer">
-                    <!-- Features will be dynamically added here -->
-                </div>
+            </div>
+            <div id="featuresContainer">
+                <!-- Features will be dynamically added here -->
+            </div>
             </div>
 
             <!-- Roadmap Page -->
