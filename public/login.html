@@ -1,4 +1,4 @@
-ha<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -35,6 +35,16 @@ ha<!DOCTYPE html>
         .login-header {
             text-align: center;
             margin-bottom: 2rem;
+        }
+
+        .login-logo {
+            margin-bottom: 1rem;
+        }
+        
+        .login-logo .logo-image {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
         }
 
         .login-header h1 {
@@ -128,6 +138,9 @@ ha<!DOCTYPE html>
 <body>
     <div class="login-container">
         <div class="login-header">
+            <div class="login-logo">
+                <img src="/light_logo.png?v=1" alt="ai core" class="logo-image">
+            </div>
             <h1>🔐 Admin Access</h1>
             <p>Enter your credentials to access admin features</p>
         </div>
@@ -196,10 +209,10 @@ ha<!DOCTYPE html>
             }
         });
 
-        // Check if already authenticated
-        if (sessionStorage.getItem('adminAuth')) {
-            window.location.href = '/admin';
-        }
+        // Check if already authenticated (commented out to prevent redirect loop)
+        // if (sessionStorage.getItem('adminAuth')) {
+        //     window.location.href = '/admin';
+        // }
     </script>
 </body>
 </html>
