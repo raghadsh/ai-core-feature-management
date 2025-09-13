@@ -107,6 +107,7 @@ function initDatabase() {
             status TEXT DEFAULT 'research',
             meeting_discussion INTEGER DEFAULT 0,
             updates TEXT DEFAULT '',
+            link TEXT DEFAULT '',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -514,16 +515,16 @@ app.get('/api/internal-work-items', (req, res) => {
 
 // Add new internal work item (admin only)
 app.post('/api/internal-work-items', requireAuth, (req, res) => {
-    const { title, description, category, priority = 'medium', impact = 'medium', timeline = null, target_date = null, status = 'research' } = req.body;
+    const { title, description, category, priority = 'medium', impact = 'medium', timeline = null, target_date = null, status = 'research', link = '' } = req.body;
     
     if (!title || !description || !category) {
         return res.status(400).json({ error: 'Title, description, and category are required' });
     }
 
-    const sql = `INSERT INTO internal_work_items (title, description, category, priority, impact, timeline, target_date, status) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO internal_work_items (title, description, category, priority, impact, timeline, target_date, status, link) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
-    db.run(sql, [title, description, category, priority, impact, timeline, target_date, status], function(err) {
+    db.run(sql, [title, description, category, priority, impact, timeline, target_date, status, link], function(err) {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
@@ -543,17 +544,17 @@ app.post('/api/internal-work-items', requireAuth, (req, res) => {
 // Update internal work item (admin only)
 app.put('/api/internal-work-items/:id', requireAuth, (req, res) => {
     const { id } = req.params;
-    const { title, description, category, priority, impact, timeline, target_date, status } = req.body;
+    const { title, description, category, priority, impact, timeline, target_date, status, link } = req.body;
     
     if (!title || !description || !category) {
         return res.status(400).json({ error: 'Title, description, and category are required' });
     }
 
     const sql = `UPDATE internal_work_items 
-                 SET title = ?, description = ?, category = ?, priority = ?, impact = ?, target_date = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
+                 SET title = ?, description = ?, category = ?, priority = ?, impact = ?, target_date = ?, status = ?, link = ?, updated_at = CURRENT_TIMESTAMP 
                  WHERE id = ?`;
     
-    db.run(sql, [title, description, category, priority, impact, target_date, status, id], function(err) {
+    db.run(sql, [title, description, category, priority, impact, target_date, status, link || '', id], function(err) {
         if (err) {
             res.status(500).json({ error: err.message });
             return;

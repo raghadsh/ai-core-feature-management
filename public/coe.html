@@ -87,6 +87,12 @@
             font-weight: 400;
         }
 
+        .nav-logo .logo-image {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+        }
+
         .nav-links {
             display: flex;
             gap: 1rem;
@@ -342,6 +348,18 @@
             display: flex;
             align-items: center;
             gap: 0.25rem;
+        }
+
+        .work-item-link {
+            color: #8b5cf6;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .work-item-link:hover {
+            color: #a855f7;
+            text-decoration: underline;
         }
 
         .priority-badge {
@@ -1271,10 +1289,7 @@
     <nav class="top-navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <span class="logo-text">
-                    <span class="logo-ai">ai</span><span class="logo-dot"></span>
-                    <span class="logo-core">core</span>
-                </span>
+                <img src="/light_logo.png" alt="ai core" class="logo-image">
             </div>
             <div class="nav-links">
                 <a href="/" class="nav-link">🌐 Public View</a>
@@ -1444,6 +1459,10 @@
                     <label for="itemTargetDate">Target Date</label>
                     <input type="text" id="itemTargetDate" placeholder="e.g., Q2, two months, end of year">
                 </div>
+                <div class="form-group">
+                    <label for="itemLink">Link (Optional)</label>
+                    <input type="url" id="itemLink" placeholder="https://example.com">
+                </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="coeBoard.closeAddModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Add Item</button>
@@ -1542,6 +1561,10 @@
                 <div class="form-group">
                     <label for="editItemTargetDate">Target Date</label>
                     <input type="text" id="editItemTargetDate" placeholder="e.g., Q2, two months, end of year">
+                </div>
+                <div class="form-group">
+                    <label for="editItemLink">Link (Optional)</label>
+                    <input type="url" id="editItemLink" placeholder="https://example.com">
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="coeBoard.closeEditModal()">Cancel</button>
@@ -1752,6 +1775,7 @@
                         <div class="work-item-meta">
                             <div class="work-item-info">
                                 ${item.target_date ? `<span>🎯 ${this.escapeHtml(item.target_date)}</span>` : ''}
+                                ${item.link ? `<span><a href="${this.escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="work-item-link">🔗 Link</a></span>` : ''}
                             </div>
                             <div class="action-buttons">
                                 <button class="action-btn updates-btn" onclick="coeBoard.openUpdatesModal(${item.id}, 'work')" title="Updates">📊</button>
@@ -1827,6 +1851,7 @@
                 const category = document.getElementById('itemCategory').value;
                 const impact = document.getElementById('itemImpact').value;
                 const target_date = document.getElementById('itemTargetDate').value.trim();
+                const link = document.getElementById('itemLink').value.trim();
 
                 if (!title || !description || !category) {
                     alert('Please fill in all required fields');
@@ -1846,7 +1871,8 @@
                             priority: impact,
                             impact: impact,
                             target_date: target_date || null,
-                            status: category // Use category as status for the new structure
+                            status: category, // Use category as status for the new structure
+                            link: link || ''
                         }),
                     });
 
@@ -2577,6 +2603,7 @@
                 document.getElementById('editItemCategory').value = item.category;
                 document.getElementById('editItemImpact').value = item.impact || item.priority;
                 document.getElementById('editItemTargetDate').value = item.target_date || '';
+                document.getElementById('editItemLink').value = item.link || '';
 
                 document.getElementById('editItemModal').style.display = 'block';
             }
@@ -2588,6 +2615,7 @@
                 const category = document.getElementById('editItemCategory').value;
                 const impact = document.getElementById('editItemImpact').value;
                 const target_date = document.getElementById('editItemTargetDate').value.trim();
+                const link = document.getElementById('editItemLink').value.trim();
 
                 if (!title || !description || !category) {
                     alert('Please fill in all required fields');
@@ -2607,7 +2635,8 @@
                             priority: impact,
                             impact: impact,
                             target_date: target_date || null,
-                            status: category
+                            status: category,
+                            link: link || ''
                         }),
                     });
 
