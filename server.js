@@ -95,6 +95,18 @@ function initDatabase() {
     `);
 
     console.log('✅ Database tables created successfully');
+    
+    // Populate with sample data if available
+    setTimeout(() => {
+        const { exec } = require('child_process');
+        exec('node populate-database.js', (error, stdout, stderr) => {
+            if (error) {
+                console.log('No sample data to populate or error:', error.message);
+                return;
+            }
+            console.log(stdout);
+        });
+    }, 2000); // Wait 2 seconds for tables to be fully created
 }
 
 // API Routes

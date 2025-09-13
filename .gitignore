@@ -8,6 +8,9 @@ yarn-error.log*
 features.db
 *.db
 
+# Sample data (keep local, don't commit)
+sample-data.json
+
 # Environment variables
 .env
 .env.local
