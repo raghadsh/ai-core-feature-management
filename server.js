@@ -94,55 +94,7 @@ function initDatabase() {
         )
     `);
 
-    // Add columns for existing databases (migrations)
-    // These run after all tables are created
-    setTimeout(() => {
-        // Add ai_core_comment column if it doesn't exist
-        db.run(`ALTER TABLE features ADD COLUMN ai_core_comment TEXT DEFAULT ''`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding ai_core_comment column:', err);
-            }
-        });
-
-        // Add meeting_discussion column if it doesn't exist
-        db.run(`ALTER TABLE internal_work_items ADD COLUMN meeting_discussion INTEGER DEFAULT 0`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding meeting_discussion column:', err.message);
-            }
-        });
-
-        db.run(`ALTER TABLE cohere_items ADD COLUMN meeting_discussion INTEGER DEFAULT 0`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding meeting_discussion column to cohere_items:', err.message);
-            }
-        });
-
-        // Add updates column if it doesn't exist
-        db.run(`ALTER TABLE internal_work_items ADD COLUMN updates TEXT DEFAULT ''`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding updates column:', err.message);
-            }
-        });
-
-        db.run(`ALTER TABLE cohere_items ADD COLUMN updates TEXT DEFAULT ''`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding updates column to cohere_items:', err.message);
-            }
-        });
-
-        // Add target_date column if it doesn't exist
-        db.run(`ALTER TABLE internal_work_items ADD COLUMN target_date TEXT`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding target_date column:', err.message);
-            }
-        });
-
-        db.run(`ALTER TABLE cohere_items ADD COLUMN target_date TEXT`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding target_date column to cohere_items:', err.message);
-            }
-        });
-    }, 1000); // Wait 1 second for tables to be created
+    console.log('✅ Database tables created successfully');
 }
 
 // API Routes
