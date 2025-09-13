@@ -83,22 +83,26 @@
 
         .nav-links {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
+            align-items: center;
         }
 
         .nav-link {
             color: #cbd5e1;
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 500;
+            position: relative;
+            white-space: nowrap;
         }
 
         .nav-link:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(139, 92, 246, 0.15);
             color: #f1f5f9;
+            transform: translateY(-1px);
         }
 
         .nav-link.active {
@@ -110,17 +114,26 @@
         .nav-link.coming-soon {
             color: #64748b;
             cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .nav-link.coming-soon:hover {
             background: transparent;
             color: #64748b;
+            transform: none;
         }
 
-        .nav-link.coming-soon small {
-            font-size: 0.7rem;
-            opacity: 0.7;
-            font-style: italic;
+        .nav-link.coming-soon::after {
+            content: "soon";
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: rgba(139, 92, 246, 0.8);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
         }
 
         .container {
@@ -135,6 +148,15 @@
             padding: 2rem;
             overflow-y: auto;
             position: relative;
+        }
+
+        .features-section {
+            background: rgba(15, 15, 35, 0.3);
+            border-radius: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            margin-top: 2rem;
         }
 
         .sidebar {
@@ -219,10 +241,12 @@
             margin-bottom: 2rem;
             flex-wrap: wrap;
             gap: 1rem;
-            background: rgba(15, 15, 35, 0.3);
+            background: rgba(15, 15, 35, 0.8);
             border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid rgba(139, 92, 246, 0.1);
+            padding: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         .features-header h2 {
@@ -273,19 +297,21 @@
 
         #featuresContainer {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 1.5rem;
-            margin-top: 2rem;
+            margin-top: 0;
         }
 
         .feature-item {
-            background: rgba(15, 15, 35, 0.6);
+            background: rgba(15, 15, 35, 0.8);
             border: 1px solid rgba(139, 92, 246, 0.2);
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 2rem;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         .feature-item::before {
@@ -331,15 +357,26 @@
 
         @media (max-width: 1200px) {
             #featuresContainer {
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 1rem;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 1.5rem;
             }
         }
 
         @media (max-width: 768px) {
             #featuresContainer {
                 grid-template-columns: 1fr;
-                gap: 1rem;
+                gap: 1.5rem;
+            }
+            
+            .features-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            
+            .sort-options {
+                width: 100%;
+                justify-content: flex-start;
             }
         }
 
@@ -934,10 +971,10 @@
                 </span>
             </div>
             <div class="nav-links">
-                <a href="/" class="nav-link active">🏠 Home</a>
-                <a href="#" class="nav-link coming-soon" title="Coming Soon">💡 Tips & Tricks <small>(coming soon)</small></a>
-                <a href="#" class="nav-link coming-soon" title="Coming Soon">🤖 Agents Marketplace <small>(coming soon)</small></a>
-                <a href="#" class="nav-link coming-soon" title="Coming Soon">📝 Engineering Blog <small>(coming soon)</small></a>
+                <a href="/" class="nav-link active">Home</a>
+                <a href="#" class="nav-link coming-soon" title="Coming Soon">💡 Tips & Tricks</a>
+                <a href="#" class="nav-link coming-soon" title="Coming Soon">🤖 Agents Marketplace</a>
+                <a href="#" class="nav-link coming-soon" title="Coming Soon">📝 Engineering Blog</a>
             </div>
         </div>
     </nav>
@@ -958,16 +995,18 @@
 
             <!-- Features Page -->
             <div class="page-section active" id="featuresPage">
-                <div class="features-header">
-                    <h2>⚡ Ideas & Requests</h2>
-                    <div class="sort-options">
-                        <button class="sort-btn active" data-sort="votes">Most Voted</button>
-                        <button class="sort-btn" data-sort="newest">Newest</button>
-                        <button class="sort-btn" data-sort="oldest">Oldest</button>
+                <div class="features-section">
+                    <div class="features-header">
+                        <h2>⚡ Ideas & Requests</h2>
+                        <div class="sort-options">
+                            <button class="sort-btn active" data-sort="votes">Most Voted</button>
+                            <button class="sort-btn" data-sort="newest">Newest</button>
+                            <button class="sort-btn" data-sort="oldest">Oldest</button>
+                        </div>
                     </div>
-                </div>
-                <div id="featuresContainer">
-                    <!-- Features will be dynamically added here -->
+                    <div id="featuresContainer">
+                        <!-- Features will be dynamically added here -->
+                    </div>
                 </div>
             </div>
 
