@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ha<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -161,6 +161,8 @@
             const password = document.getElementById('password').value;
             const errorMessage = document.getElementById('errorMessage');
             
+            console.log('Login attempt:', username, password);
+            
             try {
                 const response = await fetch('/admin', {
                     method: 'GET',
@@ -169,15 +171,20 @@
                     }
                 });
                 
+                console.log('Response status:', response.status);
+                
                 if (response.ok) {
                     // Store credentials for future requests
                     sessionStorage.setItem('adminAuth', btoa(username + ':' + password));
+                    console.log('Login successful, redirecting...');
                     window.location.href = '/admin';
                 } else {
+                    console.log('Login failed, status:', response.status);
                     errorMessage.textContent = 'Invalid username or password';
                     errorMessage.style.display = 'block';
                 }
             } catch (error) {
+                console.error('Login error:', error);
                 errorMessage.textContent = 'Login failed. Please try again.';
                 errorMessage.style.display = 'block';
             }
