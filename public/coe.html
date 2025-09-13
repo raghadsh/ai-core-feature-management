@@ -274,6 +274,18 @@
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
         }
 
+        .link-btn {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        .link-btn:hover {
+            border-color: rgba(16, 185, 129, 0.6);
+            background: rgba(16, 185, 129, 0.1);
+            color: #a7f3d0;
+        }
+
         .edit-btn:hover {
             border-color: rgba(59, 130, 246, 0.6);
             background: rgba(59, 130, 246, 0.1);
@@ -1779,6 +1791,7 @@
                             </div>
                             <div class="action-buttons">
                                 <button class="action-btn updates-btn" onclick="coeBoard.openUpdatesModal(${item.id}, 'work')" title="Updates">📊</button>
+                                ${item.link ? `<button class="action-btn link-btn" onclick="coeBoard.viewLink('${item.link}')" title="View Link">🔗</button>` : ''}
                                 <button class="action-btn edit-btn" onclick="coeBoard.editWorkItem(${item.id})" title="Edit">✏️</button>
                                 <button class="action-btn move-btn" onclick="coeBoard.showMoveOptions(${item.id})" title="Move">↔️</button>
                                 ${item.category === 'done' ? 
@@ -1905,6 +1918,11 @@
             resetForm() {
                 document.getElementById('addItemForm').reset();
                 document.getElementById('itemImpact').value = 'medium';
+            }
+
+            viewLink(url) {
+                // Open link in new tab
+                window.open(url, '_blank', 'noopener,noreferrer');
             }
 
             escapeHtml(text) {
@@ -2405,6 +2423,7 @@
                             </div>
                             <div class="meeting-item-actions">
                                 <button class="action-btn view-updates-btn" onclick="coeBoard.openViewUpdatesModal(${item.id}, '${isCohereItem ? 'cohere' : 'work'}')" title="View Updates">📊</button>
+                                ${item.link ? `<button class="action-btn link-btn" onclick="coeBoard.viewLink('${item.link}')" title="View Link">🔗</button>` : ''}
                                 <button class="action-btn meeting-toggle-btn" onclick="coeBoard.toggleMeetingItem(${item.id}, '${isCohereItem ? 'cohere' : 'work'}')" title="Remove from Meeting">❌</button>
                                 <button class="action-btn delete-btn" onclick="coeBoard.deleteMeetingItem(${item.id}, '${isCohereItem ? 'cohere' : 'work'}')" title="Delete">🗑️</button>
                             </div>
