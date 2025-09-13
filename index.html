@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <meta fixhttp-equiv="Expires" content="0">
     <title>ai core - Feature Voting v2.0</title>
     <style>
         * {
@@ -65,17 +65,19 @@
             height: 48px;
             width: auto;
             object-fit: contain;
+            border: 2px solid blue !important;
+            background: green !important;
         }
 
         /* Top Navigation Bar */
         .top-navbar {
-            background: rgba(15, 15, 35, 0.9);
+            background: rgba(15, 15, 35, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(139, 92, 246, 0.2);
-            padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
+            padding: 1rem 0;
         }
 
         .nav-container {
@@ -88,9 +90,11 @@
         }
 
         .nav-logo .logo-image {
-            height: 32px;
-            width: auto;
-            object-fit: contain;
+            height: 32px !important;
+            width: auto !important;
+            object-fit: contain !important;
+            border: 2px solid red !important;
+            background: yellow !important;
         }
 
         .nav-links {
@@ -98,41 +102,41 @@
             gap: 1rem;
         }
 
-        .nav-link {
-            background: rgba(15, 15, 35, 0.8);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            color: #e2e8f0;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+        .nav-links .nav-link {
+            background: rgba(15, 15, 35, 0.8) !important;
+            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+            color: #e2e8f0 !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px !important;
+            text-decoration: none !important;
+            font-weight: 500 !important;
+            font-size: 0.9rem !important;
+            transition: all 0.3s ease !important;
         }
 
-        .nav-link:hover {
-            border-color: rgba(139, 92, 246, 0.6);
-            background: rgba(139, 92, 246, 0.1);
+        .nav-links .nav-link:hover {
+            border-color: rgba(139, 92, 246, 0.6) !important;
+            background: rgba(139, 92, 246, 0.1) !important;
         }
 
-        .nav-link.active {
-            background: linear-gradient(135deg, #8b5cf6, #a855f7);
-            border-color: #8b5cf6;
-            color: white;
+        .nav-links .nav-link.active {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7) !important;
+            border-color: #8b5cf6 !important;
+            color: white !important;
         }
 
         .nav-link.coming-soon {
-            background: rgba(100, 116, 139, 0.2);
-            border-color: rgba(100, 116, 139, 0.3);
-            color: #94a3b8;
-            cursor: not-allowed;
-            opacity: 0.7;
+            background: rgba(100, 116, 139, 0.2) !important;
+            border-color: rgba(100, 116, 139, 0.3) !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+            opacity: 0.7 !important;
         }
 
         .nav-link.coming-soon:hover {
-            background: rgba(100, 116, 139, 0.3);
-            border-color: rgba(100, 116, 139, 0.5);
-            transform: none;
+            background: rgba(100, 116, 139, 0.3) !important;
+            border-color: rgba(100, 116, 139, 0.5) !important;
+            transform: none !important;
         }
 
         .logo {
