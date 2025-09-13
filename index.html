@@ -69,22 +69,29 @@
 
         /* Top Navigation Bar */
         .top-navbar {
-            background: rgba(15, 15, 35, 0.95);
+            background: rgba(15, 15, 35, 0.95) !important;
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(139, 92, 246, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            padding: 1rem 0;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            padding: 1rem 0 !important;
+            display: block !important;
+            visibility: visible !important;
+            height: auto !important;
+            min-height: 60px !important;
+            border: 3px solid red !important;
         }
 
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
-            display: flex;
+            display: flex !important;
             justify-content: space-between;
             align-items: center;
+            background: yellow !important;
+            min-height: 40px !important;
         }
 
         .nav-logo .logo-image {
@@ -842,13 +849,11 @@
     </style>
 </head>
 <body>
-    <div class="floating-particles" id="particles"></div>
-    
     <!-- Top Navigation Bar -->
     <nav class="top-navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <img src="/light_logo.png?v=3" alt="ai core" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <img src="/light_logo.png?v=4" alt="ai core" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <span class="logo-text" style="display: none;">
                     <span class="logo-ai">ai</span>
                     <span class="logo-dot">•</span>
@@ -863,6 +868,8 @@
             </div>
         </div>
     </nav>
+
+    <div class="floating-particles" id="particles"></div>
 
     <div class="container">
         <div class="main-content">
