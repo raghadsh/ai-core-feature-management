@@ -71,10 +71,10 @@
         }
 
         .blog-card h2 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: #f1f5f9;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
 
         .blog-card .excerpt {
@@ -166,49 +166,88 @@
     </div>
 
     <script>
-        // Sample blog posts data
-        const blogPosts = [
-            {
-                title: "Getting Started with AI Core",
-                excerpt: "Learn how to get started with AI Core and build your first intelligent application.",
-                author: "AI Core Team",
-                date: "2024-01-15",
-                slug: "getting-started-with-ai-core"
-            },
-            {
-                title: "Advanced Prompting Techniques for Better AI Results",
-                excerpt: "Master the art of prompt engineering to get better results from AI models.",
-                author: "Sarah Chen",
-                date: "2024-01-20",
-                slug: "advanced-prompting-techniques"
-            }
+        // Known blog posts
+        const blogSlugs = [
+            'getting-started-with-ai-core',
+            'advanced-prompting-techniques',
+            'example-post'
         ];
 
-        function renderBlogPosts() {
+        async function loadBlogPosts() {
             const container = document.getElementById('blogPosts');
             const comingSoon = document.getElementById('comingSoon');
             
-            if (blogPosts.length === 0) {
-                comingSoon.style.display = 'block';
-                container.style.display = 'none';
-                return;
-            }
+            try {
+                const posts = [];
+                
+                for (const slug of blogSlugs) {
+                    try {
+                        const response = await fetch(`/blog/${slug}.mdx`);
+                        if (response.ok) {
+                            const mdxContent = await response.text();
+                            
+                            // Simple frontmatter parsing
+                            const frontmatterMatch = mdxContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+                            if (frontmatterMatch) {
+                                const frontmatterText = frontmatterMatch[1];
+                                const content = frontmatterMatch[2];
+                                
+                                // Parse frontmatter
+                                const frontmatter = {};
+                                frontmatterText.split('\n').forEach(line => {
+                                    const [key, ...valueParts] = line.split(':');
+                                    if (key && valueParts.length > 0) {
+                                        frontmatter[key.trim()] = valueParts.join(':').trim().replace(/['"]/g, '');
+                                    }
+                                });
+                                
+                                // Create excerpt from content (first 150 characters)
+                                const excerpt = content.replace(/[#*`]/g, '').substring(0, 150).trim() + '...';
+                                
+                                posts.push({
+                                    title: frontmatter.title || 'Untitled',
+                                    excerpt: frontmatter.excerpt || excerpt,
+                                    author: frontmatter.author || 'AI Core Team',
+                                    date: frontmatter.date || new Date().toISOString().split('T')[0],
+                                    slug: slug
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.warn(`Could not load blog post: ${slug}`, error);
+                    }
+                }
 
-            container.innerHTML = blogPosts.map(post => `
-                <article class="blog-card">
-                    <div class="blog-meta">
-                        <span>By ${post.author}</span>
-                        <span>${new Date(post.date).toLocaleDateString()}</span>
-                    </div>
-                    <h2>${post.title}</h2>
-                    <p class="excerpt">${post.excerpt}</p>
-                    <a href="/blog/${post.slug}" class="read-more">Read More</a>
-                </article>
-            `).join('');
+                if (posts.length === 0) {
+                    container.style.display = 'none';
+                    comingSoon.style.display = 'block';
+                    return;
+                }
+
+                // Sort by date (newest first)
+                posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                container.innerHTML = posts.map(post => `
+                    <article class="blog-card">
+                        <div class="blog-meta">
+                            <span>By ${post.author}</span>
+                            <span>${new Date(post.date).toLocaleDateString()}</span>
+                        </div>
+                        <h2>${post.title}</h2>
+                        <p class="excerpt">${post.excerpt}</p>
+                        <a href="/blog/${post.slug}" class="read-more">Read More</a>
+                    </article>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading blog posts:', error);
+                container.style.display = 'none';
+                comingSoon.style.display = 'block';
+            }
         }
 
         // Initialize
-        renderBlogPosts();
+        loadBlogPosts();
     </script>
 </body>
 </html>
