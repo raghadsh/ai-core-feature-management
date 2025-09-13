@@ -9,7 +9,7 @@ features.db
 *.db
 
 # Sample data (keep local, don't commit)
-sample-data.json
+# sample-data.json
 
 # Environment variables
 .env

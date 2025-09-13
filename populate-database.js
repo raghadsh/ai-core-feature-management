@@ -10,22 +10,34 @@ const db = new sqlite3.Database('./features.db', (err) => {
     console.log('Connected to database for population');
 });
 
-// Load sample data
+// Load your local data
 let sampleData;
 try {
-    // Try to load from exported data first
     const data = fs.readFileSync('./sample-data.json', 'utf8');
     sampleData = JSON.parse(data);
-    console.log('✅ Exported sample data loaded');
+    console.log('✅ Your local data loaded');
 } catch (err) {
-    // Fall back to built-in sample data
-    try {
-        sampleData = require('./sample-data.js');
-        console.log('✅ Built-in sample data loaded');
-    } catch (err2) {
-        console.log('No sample data found, skipping population');
-        process.exit(0);
-    }
+    console.log('No local data found, skipping population');
+    process.exit(0);
+}
+
+// Check if data already exists
+function checkIfDataExists() {
+    db.get("SELECT COUNT(*) as count FROM features", (err, row) => {
+        if (err) {
+            console.error('Error checking existing data:', err);
+            return;
+        }
+        
+        if (row.count > 0) {
+            console.log('✅ Database already has data, skipping population');
+            db.close();
+            return;
+        }
+        
+        console.log('📊 Database is empty, populating with local data...');
+        populateDatabase();
+    });
 }
 
 // Populate database function
@@ -36,7 +48,7 @@ function populateDatabase() {
     function checkComplete() {
         completed++;
         if (completed === total) {
-            console.log('✅ Database population completed');
+            console.log('✅ Database population completed with your local data');
             db.close();
         }
     }
@@ -145,5 +157,5 @@ function populateDatabase() {
     checkComplete();
 }
 
-// Run population
-populateDatabase();
+// Check if data exists first, then populate if needed
+checkIfDataExists();
