@@ -17,8 +17,8 @@ function requireAuth(req, res, next) {
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Basic ')) {
-        res.setHeader('WWW-Authenticate', 'Basic realm="Admin Access"');
-        return res.status(401).send('Authentication required');
+        // Redirect to custom login page instead of showing browser dialog
+        return res.redirect('/login');
     }
     
     const credentials = Buffer.from(authHeader.split(' ')[1], 'base64').toString('ascii');
@@ -31,8 +31,8 @@ function requireAuth(req, res, next) {
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         next();
     } else {
-        res.setHeader('WWW-Authenticate', 'Basic realm="Admin Access"');
-        return res.status(401).send('Invalid credentials');
+        // Redirect to custom login page instead of showing browser dialog
+        return res.redirect('/login');
     }
 }
 
