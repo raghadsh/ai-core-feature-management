@@ -122,12 +122,27 @@ app.get('/coe', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'coe.html'));
 });
 
-// Database setup
-const db = new sqlite3.Database('./features.db', (err) => {
+// Database setup - use persistent path for Render
+const dbPath = process.env.NODE_ENV === 'production' 
+    ? '/tmp/features.db'  // Use /tmp directory which persists on Render
+    : './features.db';    // Local development
+
+// Ensure the directory exists for production
+if (process.env.NODE_ENV === 'production') {
+    const fs = require('fs');
+    const path = require('path');
+    const dir = path.dirname(dbPath);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+}
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error opening database:', err.message);
     } else {
         console.log('Connected to SQLite database');
+        console.log('Database path:', dbPath);
         initDatabase();
     }
 });

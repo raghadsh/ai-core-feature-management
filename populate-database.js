@@ -1,13 +1,18 @@
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 
-// Connect to database
-const db = new sqlite3.Database('./features.db', (err) => {
+// Connect to database - use same path as server.js
+const dbPath = process.env.NODE_ENV === 'production' 
+    ? '/tmp/features.db'  // Use /tmp directory which persists on Render
+    : './features.db';    // Local development
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error opening database:', err.message);
         return;
     }
     console.log('Connected to database for population');
+    console.log('Database path:', dbPath);
 });
 
 // Load your local data
