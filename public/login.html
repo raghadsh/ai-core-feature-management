@@ -163,6 +163,12 @@ ha<!DOCTYPE html>
             
             console.log('Login attempt:', username, password);
             
+            if (!username || !password) {
+                errorMessage.textContent = 'Please enter both username and password';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
             try {
                 const response = await fetch('/admin', {
                     method: 'GET',
