@@ -12,13 +12,42 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+// Simple authentication middleware
+function requireAuth(req, res, next) {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+        res.setHeader('WWW-Authenticate', 'Basic realm="Admin Access"');
+        return res.status(401).send('Authentication required');
+    }
+    
+    const credentials = Buffer.from(authHeader.split(' ')[1], 'base64').toString('ascii');
+    const [username, password] = credentials.split(':');
+    
+    // Simple hardcoded credentials (you can change these)
+    const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'aicore2024';
+    
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        next();
+    } else {
+        res.setHeader('WWW-Authenticate', 'Basic realm="Admin Access"');
+        return res.status(401).send('Invalid credentials');
+    }
+}
+
+// Login route
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
 // Admin route
-app.get('/admin', (req, res) => {
+app.get('/admin', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // CoE route
-app.get('/coe', (req, res) => {
+app.get('/coe', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'coe.html'));
 });
 
@@ -237,8 +266,8 @@ app.get('/api/features/stats', (req, res) => {
     });
 });
 
-// Create a new feature
-app.post('/api/features', (req, res) => {
+// Create a new feature (admin only)
+app.post('/api/features', requireAuth, (req, res) => {
     const { title, description = 'No additional details provided', status = 'requested', addedBy = 'user' } = req.body;
     
     if (!title) {
@@ -269,8 +298,8 @@ app.post('/api/features', (req, res) => {
     });
 });
 
-// Update feature
-app.put('/api/features/:id', (req, res) => {
+// Update feature (admin only)
+app.put('/api/features/:id', requireAuth, (req, res) => {
     const { id } = req.params;
     const { title, description, status, ai_core_comment } = req.body;
     
@@ -313,8 +342,8 @@ app.put('/api/features/:id', (req, res) => {
     });
 });
 
-// Update feature status
-app.put('/api/features/:id/status', (req, res) => {
+// Update feature status (admin only)
+app.put('/api/features/:id/status', requireAuth, (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     
@@ -342,8 +371,8 @@ app.put('/api/features/:id/status', (req, res) => {
     });
 });
 
-// Update feature ai_core_comment
-app.put('/api/features/:id/comment', (req, res) => {
+// Update feature ai_core_comment (admin only)
+app.put('/api/features/:id/comment', requireAuth, (req, res) => {
     const { id } = req.params;
     const { ai_core_comment } = req.body;
     
@@ -440,8 +469,8 @@ app.post('/api/features/:id/vote', (req, res) => {
     });
 });
 
-// Delete a feature
-app.delete('/api/features/:id', (req, res) => {
+// Delete a feature (admin only)
+app.delete('/api/features/:id', requireAuth, (req, res) => {
     const { id } = req.params;
     
     const query = 'DELETE FROM features WHERE id = ?';
@@ -478,8 +507,8 @@ app.get('/api/internal-work-items', (req, res) => {
     });
 });
 
-// Add new internal work item
-app.post('/api/internal-work-items', (req, res) => {
+// Add new internal work item (admin only)
+app.post('/api/internal-work-items', requireAuth, (req, res) => {
     const { title, description, category, priority = 'medium', impact = 'medium', timeline = null, target_date = null, status = 'research' } = req.body;
     
     if (!title || !description || !category) {
@@ -506,8 +535,8 @@ app.post('/api/internal-work-items', (req, res) => {
     });
 });
 
-// Update internal work item
-app.put('/api/internal-work-items/:id', (req, res) => {
+// Update internal work item (admin only)
+app.put('/api/internal-work-items/:id', requireAuth, (req, res) => {
     const { id } = req.params;
     const { title, description, category, priority, impact, timeline, target_date, status } = req.body;
     
@@ -540,8 +569,8 @@ app.put('/api/internal-work-items/:id', (req, res) => {
     });
 });
 
-// Update meeting discussion status
-app.put('/api/internal-work-items/:id/meeting', (req, res) => {
+// Update meeting discussion status (admin only)
+app.put('/api/internal-work-items/:id/meeting', requireAuth, (req, res) => {
     const { id } = req.params;
     const { meeting_discussion } = req.body;
     
@@ -563,8 +592,8 @@ app.put('/api/internal-work-items/:id/meeting', (req, res) => {
     });
 });
 
-// Update internal work item status
-app.put('/api/internal-work-items/:id/status', (req, res) => {
+// Update internal work item status (admin only)
+app.put('/api/internal-work-items/:id/status', requireAuth, (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     
@@ -592,8 +621,8 @@ app.put('/api/internal-work-items/:id/status', (req, res) => {
     });
 });
 
-// Delete internal work item
-app.delete('/api/internal-work-items/:id', (req, res) => {
+// Delete internal work item (admin only)
+app.delete('/api/internal-work-items/:id', requireAuth, (req, res) => {
     const { id } = req.params;
     
     db.run('DELETE FROM internal_work_items WHERE id = ?', [id], function(err) {
@@ -610,8 +639,8 @@ app.delete('/api/internal-work-items/:id', (req, res) => {
     });
 });
 
-// Update work item updates
-app.put('/api/internal-work-items/:id/updates', (req, res) => {
+// Update work item updates (admin only)
+app.put('/api/internal-work-items/:id/updates', requireAuth, (req, res) => {
     const { id } = req.params;
     const { updates } = req.body;
     
@@ -646,8 +675,8 @@ app.get('/api/cohere-items', (req, res) => {
     });
 });
 
-// Add new cohere item
-app.post('/api/cohere-items', (req, res) => {
+// Add new cohere item (admin only)
+app.post('/api/cohere-items', requireAuth, (req, res) => {
     const { title, description, category, status, link = null, target_date = null } = req.body;
     
     if (!title || !category || !status) {
@@ -674,8 +703,8 @@ app.post('/api/cohere-items', (req, res) => {
     });
 });
 
-// Update cohere item status
-app.put('/api/cohere-items/:id/status', (req, res) => {
+// Update cohere item status (admin only)
+app.put('/api/cohere-items/:id/status', requireAuth, (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     
@@ -698,8 +727,8 @@ app.put('/api/cohere-items/:id/status', (req, res) => {
     });
 });
 
-// Update cohere item
-app.put('/api/cohere-items/:id', (req, res) => {
+// Update cohere item (admin only)
+app.put('/api/cohere-items/:id', requireAuth, (req, res) => {
     const { id } = req.params;
     const { title, description, category, status, link, target_date } = req.body;
     
@@ -732,8 +761,8 @@ app.put('/api/cohere-items/:id', (req, res) => {
     });
 });
 
-// Update cohere item meeting discussion status
-app.put('/api/cohere-items/:id/meeting', (req, res) => {
+// Update cohere item meeting discussion status (admin only)
+app.put('/api/cohere-items/:id/meeting', requireAuth, (req, res) => {
     const { id } = req.params;
     const { meeting_discussion } = req.body;
     
@@ -755,8 +784,8 @@ app.put('/api/cohere-items/:id/meeting', (req, res) => {
     });
 });
 
-// Update cohere item updates
-app.put('/api/cohere-items/:id/updates', (req, res) => {
+// Update cohere item updates (admin only)
+app.put('/api/cohere-items/:id/updates', requireAuth, (req, res) => {
     const { id } = req.params;
     const { updates } = req.body;
     
@@ -778,8 +807,8 @@ app.put('/api/cohere-items/:id/updates', (req, res) => {
     });
 });
 
-// Delete cohere item
-app.delete('/api/cohere-items/:id', (req, res) => {
+// Delete cohere item (admin only)
+app.delete('/api/cohere-items/:id', requireAuth, (req, res) => {
     const { id } = req.params;
     
     db.run('DELETE FROM cohere_items WHERE id = ?', [id], function(err) {
