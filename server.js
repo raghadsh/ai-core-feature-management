@@ -17,6 +17,11 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+// CoE route
+app.get('/coe', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'coe.html'));
+});
+
 // Database setup
 const db = new sqlite3.Database('./features.db', (err) => {
     if (err) {
@@ -37,10 +42,18 @@ function initDatabase() {
             votes INTEGER DEFAULT 0,
             status TEXT DEFAULT 'requested',
             added_by TEXT DEFAULT 'user',
+            ai_core_comment TEXT DEFAULT '',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
+
+    // Add ai_core_comment column if it doesn't exist (migration)
+    db.run(`ALTER TABLE features ADD COLUMN ai_core_comment TEXT DEFAULT ''`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding ai_core_comment column:', err);
+        }
+    });
 
     db.run(`
         CREATE TABLE IF NOT EXISTS votes (
@@ -52,6 +65,79 @@ function initDatabase() {
             UNIQUE(feature_id, user_id)
         )
     `);
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS internal_work_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            category TEXT NOT NULL,
+            priority TEXT DEFAULT 'medium',
+            impact TEXT DEFAULT 'medium',
+            timeline TEXT,
+            target_date TEXT,
+            status TEXT DEFAULT 'research',
+            meeting_discussion INTEGER DEFAULT 0,
+            updates TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS cohere_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            category TEXT NOT NULL,
+            status TEXT NOT NULL,
+            link TEXT,
+            target_date TEXT,
+            meeting_discussion INTEGER DEFAULT 0,
+            updates TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // Add meeting_discussion column if it doesn't exist (for existing databases)
+    db.run(`ALTER TABLE internal_work_items ADD COLUMN meeting_discussion INTEGER DEFAULT 0`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding meeting_discussion column:', err.message);
+        }
+    });
+
+    db.run(`ALTER TABLE cohere_items ADD COLUMN meeting_discussion INTEGER DEFAULT 0`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding meeting_discussion column to cohere_items:', err.message);
+        }
+    });
+
+    // Add updates column if it doesn't exist (for existing databases)
+    db.run(`ALTER TABLE internal_work_items ADD COLUMN updates TEXT DEFAULT ''`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding updates column:', err.message);
+        }
+    });
+
+    db.run(`ALTER TABLE cohere_items ADD COLUMN updates TEXT DEFAULT ''`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding updates column to cohere_items:', err.message);
+        }
+    });
+
+    // Add target_date column if it doesn't exist (for existing databases)
+    db.run(`ALTER TABLE internal_work_items ADD COLUMN target_date TEXT`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding target_date column:', err.message);
+        }
+    });
+
+    db.run(`ALTER TABLE cohere_items ADD COLUMN target_date TEXT`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding target_date column to cohere_items:', err.message);
+        }
+    });
 }
 
 // API Routes
@@ -61,7 +147,7 @@ app.get('/api/features', (req, res) => {
     const { sort = 'votes', status } = req.query;
     
     let query = `
-        SELECT f.*, 
+        SELECT f.id, f.title, f.description, f.votes, f.status, f.added_by, f.created_at, f.updated_at, f.ai_core_comment,
                COUNT(v.id) as vote_count,
                GROUP_CONCAT(v.user_id) as voted_by
         FROM features f
@@ -106,7 +192,8 @@ app.get('/api/features', (req, res) => {
             status: row.status,
             addedBy: row.added_by,
             createdAt: row.created_at,
-            updatedAt: row.updated_at
+            updatedAt: row.updated_at,
+            ai_core_comment: row.ai_core_comment || ''
         }));
         
         res.json(features);
@@ -143,7 +230,8 @@ app.get('/api/features/status/:status', (req, res) => {
             status: row.status,
             addedBy: row.added_by,
             createdAt: row.created_at,
-            updatedAt: row.updated_at
+            updatedAt: row.updated_at,
+            ai_core_comment: row.ai_core_comment || ''
         }));
         
         res.json(features);
@@ -212,6 +300,50 @@ app.post('/api/features', (req, res) => {
     });
 });
 
+// Update feature
+app.put('/api/features/:id', (req, res) => {
+    const { id } = req.params;
+    const { title, description, status, ai_core_comment } = req.body;
+    
+    let query, params;
+    
+    if (title && description && status) {
+        // Update all fields
+        query = `
+            UPDATE features 
+            SET title = ?, description = ?, status = ?, ai_core_comment = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `;
+        params = [title, description, status, ai_core_comment || '', id];
+    } else if (status) {
+        // Update only status
+        query = `
+            UPDATE features 
+            SET status = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `;
+        params = [status, id];
+    } else {
+        return res.status(400).json({ error: 'At least one field (title, description, or status) is required' });
+    }
+    
+    db.run(query, params, function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Feature not found' });
+        }
+        
+        res.json({ 
+            message: 'Feature updated successfully',
+            changes: this.changes 
+        });
+    });
+});
+
 // Update feature status
 app.put('/api/features/:id/status', (req, res) => {
     const { id } = req.params;
@@ -238,6 +370,31 @@ app.put('/api/features/:id/status', (req, res) => {
         }
         
         res.json({ message: 'Feature status updated successfully' });
+    });
+});
+
+// Update feature ai_core_comment
+app.put('/api/features/:id/comment', (req, res) => {
+    const { id } = req.params;
+    const { ai_core_comment } = req.body;
+    
+    const query = `
+        UPDATE features 
+        SET ai_core_comment = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    `;
+    
+    db.run(query, [ai_core_comment || '', id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Feature not found' });
+        }
+        
+        res.json({ message: 'AI Core comment updated successfully' });
     });
 });
 
@@ -337,6 +494,337 @@ app.delete('/api/features/:id', (req, res) => {
 // Serve the main page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Internal Work Items API Routes
+
+// Get all internal work items
+app.get('/api/internal-work-items', (req, res) => {
+    db.all('SELECT * FROM internal_work_items ORDER BY created_at DESC', (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(rows);
+    });
+});
+
+// Add new internal work item
+app.post('/api/internal-work-items', (req, res) => {
+    const { title, description, category, priority = 'medium', impact = 'medium', timeline = null, target_date = null, status = 'research' } = req.body;
+    
+    if (!title || !description || !category) {
+        return res.status(400).json({ error: 'Title, description, and category are required' });
+    }
+
+    const sql = `INSERT INTO internal_work_items (title, description, category, priority, impact, timeline, target_date, status) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+    db.run(sql, [title, description, category, priority, impact, timeline, target_date, status], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        // Return the created item
+        db.get('SELECT * FROM internal_work_items WHERE id = ?', [this.lastID], (err, row) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.status(201).json(row);
+        });
+    });
+});
+
+// Update internal work item
+app.put('/api/internal-work-items/:id', (req, res) => {
+    const { id } = req.params;
+    const { title, description, category, priority, impact, timeline, target_date, status } = req.body;
+    
+    if (!title || !description || !category) {
+        return res.status(400).json({ error: 'Title, description, and category are required' });
+    }
+
+    const sql = `UPDATE internal_work_items 
+                 SET title = ?, description = ?, category = ?, priority = ?, impact = ?, target_date = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
+                 WHERE id = ?`;
+    
+    db.run(sql, [title, description, category, priority, impact, target_date, status, id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Work item not found' });
+        }
+        
+        // Return the updated item
+        db.get('SELECT * FROM internal_work_items WHERE id = ?', [id], (err, row) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json(row);
+        });
+    });
+});
+
+// Update meeting discussion status
+app.put('/api/internal-work-items/:id/meeting', (req, res) => {
+    const { id } = req.params;
+    const { meeting_discussion } = req.body;
+    
+    const sql = `UPDATE internal_work_items 
+                 SET meeting_discussion = ?, updated_at = CURRENT_TIMESTAMP 
+                 WHERE id = ?`;
+    
+    db.run(sql, [meeting_discussion ? 1 : 0, id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Work item not found' });
+        }
+        
+        res.json({ message: 'Meeting status updated successfully' });
+    });
+});
+
+// Update internal work item status
+app.put('/api/internal-work-items/:id/status', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+        return res.status(400).json({ error: 'Status is required' });
+    }
+
+    const validStatuses = ['evaluation', 'tools', 'adoption'];
+    if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    db.run('UPDATE internal_work_items SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', 
+           [status, id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Work item not found' });
+        }
+        
+        res.json({ message: 'Status updated successfully' });
+    });
+});
+
+// Delete internal work item
+app.delete('/api/internal-work-items/:id', (req, res) => {
+    const { id } = req.params;
+    
+    db.run('DELETE FROM internal_work_items WHERE id = ?', [id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Work item not found' });
+        }
+        
+        res.json({ message: 'Work item deleted successfully' });
+    });
+});
+
+// Update work item updates
+app.put('/api/internal-work-items/:id/updates', (req, res) => {
+    const { id } = req.params;
+    const { updates } = req.body;
+    
+    const sql = `UPDATE internal_work_items 
+                 SET updates = ?, updated_at = CURRENT_TIMESTAMP 
+                 WHERE id = ?`;
+    
+    db.run(sql, [updates || '', id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Work item not found' });
+        }
+        
+        res.json({ message: 'Updates saved successfully' });
+    });
+});
+
+// Cohere Items API Routes
+
+// Get all cohere items
+app.get('/api/cohere-items', (req, res) => {
+    db.all('SELECT * FROM cohere_items ORDER BY created_at DESC', (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(rows);
+    });
+});
+
+// Add new cohere item
+app.post('/api/cohere-items', (req, res) => {
+    const { title, description, category, status, link = null, target_date = null } = req.body;
+    
+    if (!title || !category || !status) {
+        return res.status(400).json({ error: 'Title, category, and status are required' });
+    }
+
+    const sql = `INSERT INTO cohere_items (title, description, category, status, link, target_date) 
+                 VALUES (?, ?, ?, ?, ?, ?)`;
+    
+    db.run(sql, [title, description, category, status, link, target_date], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        // Return the created item
+        db.get('SELECT * FROM cohere_items WHERE id = ?', [this.lastID], (err, row) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.status(201).json(row);
+        });
+    });
+});
+
+// Update cohere item status
+app.put('/api/cohere-items/:id/status', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+        return res.status(400).json({ error: 'Status is required' });
+    }
+
+    db.run('UPDATE cohere_items SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', 
+           [status, id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Cohere item not found' });
+        }
+        
+        res.json({ message: 'Status updated successfully' });
+    });
+});
+
+// Update cohere item
+app.put('/api/cohere-items/:id', (req, res) => {
+    const { id } = req.params;
+    const { title, description, category, status, link, target_date } = req.body;
+    
+    if (!title || !category || !status) {
+        return res.status(400).json({ error: 'Title, category, and status are required' });
+    }
+
+    const sql = `UPDATE cohere_items 
+                 SET title = ?, description = ?, category = ?, status = ?, link = ?, target_date = ?, updated_at = CURRENT_TIMESTAMP 
+                 WHERE id = ?`;
+    
+    db.run(sql, [title, description, category, status, link, target_date, id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Cohere item not found' });
+        }
+        
+        // Return the updated item
+        db.get('SELECT * FROM cohere_items WHERE id = ?', [id], (err, row) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json(row);
+        });
+    });
+});
+
+// Update cohere item meeting discussion status
+app.put('/api/cohere-items/:id/meeting', (req, res) => {
+    const { id } = req.params;
+    const { meeting_discussion } = req.body;
+    
+    const sql = `UPDATE cohere_items 
+                 SET meeting_discussion = ?, updated_at = CURRENT_TIMESTAMP 
+                 WHERE id = ?`;
+    
+    db.run(sql, [meeting_discussion ? 1 : 0, id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Cohere item not found' });
+        }
+        
+        res.json({ message: 'Meeting status updated successfully' });
+    });
+});
+
+// Update cohere item updates
+app.put('/api/cohere-items/:id/updates', (req, res) => {
+    const { id } = req.params;
+    const { updates } = req.body;
+    
+    const sql = `UPDATE cohere_items 
+                 SET updates = ?, updated_at = CURRENT_TIMESTAMP 
+                 WHERE id = ?`;
+    
+    db.run(sql, [updates || '', id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Cohere item not found' });
+        }
+        
+        res.json({ message: 'Updates saved successfully' });
+    });
+});
+
+// Delete cohere item
+app.delete('/api/cohere-items/:id', (req, res) => {
+    const { id } = req.params;
+    
+    db.run('DELETE FROM cohere_items WHERE id = ?', [id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Cohere item not found' });
+        }
+        
+        res.json({ message: 'Cohere item deleted successfully' });
+    });
 });
 
 // Start server

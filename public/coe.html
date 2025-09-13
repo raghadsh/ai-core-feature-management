@@ -1,0 +1,2952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CoE Internal Board</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(139, 92, 246, 0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+
+        .top-navbar {
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo .logo-text {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #8b5cf6;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .nav-logo .logo-ai {
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+
+        .nav-logo .logo-dot {
+            color: #8b5cf6;
+            margin: 0 0.15rem;
+            font-weight: 600;
+        }
+
+        .nav-logo .logo-core {
+            color: #cbd5e1;
+            font-weight: 400;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links .nav-link {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: all 0.3s ease;
+            line-height: 1;
+            height: 2.25rem;
+            min-height: 2.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            white-space: nowrap;
+        }
+
+        .nav-links .nav-link:hover {
+            border-color: rgba(139, 92, 246, 0.6);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .nav-links .nav-link.active {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border-color: #8b5cf6;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+
+        .board-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            min-width: 0;
+            overflow-x: auto;
+        }
+
+        .status-column {
+            background: rgba(15, 15, 35, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            min-width: 280px;
+        }
+
+        .status-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .status-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-count {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .work-item {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .work-item-description,
+        .work-item-title {
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+        }
+
+
+        .work-item:hover {
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .work-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #94a3b8;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-btn:hover {
+            border-color: rgba(139, 92, 246, 0.6);
+            background: rgba(139, 92, 246, 0.1);
+            color: #e2e8f0;
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .edit-btn:hover {
+            border-color: rgba(59, 130, 246, 0.6);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .move-btn:hover {
+            border-color: rgba(16, 185, 129, 0.6);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .done-btn:hover {
+            border-color: rgba(34, 197, 94, 0.6);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: rgba(239, 68, 68, 0.4) !important;
+            color: #fca5a5 !important;
+        }
+
+        .delete-btn:hover {
+            border-color: rgba(239, 68, 68, 0.8) !important;
+            background: rgba(239, 68, 68, 0.3) !important;
+            color: #fca5a5 !important;
+            transform: scale(1.15) !important;
+        }
+
+        .cohere-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .work-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .work-item-title {
+            font-weight: 600;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+        }
+
+        .work-item-description {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .work-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-top: auto;
+            gap: 1rem;
+        }
+
+        .work-item-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .work-item-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .priority-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .priority-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .priority-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .priority-low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .add-item-btn {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .add-item-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 15, 35, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            backdrop-filter: blur(20px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Custom scrollbar for modals */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(15, 15, 35, 0.3);
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.6);
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.8);
+        }
+
+        /* Custom scrollbar for section content only */
+        .section-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .section-content::-webkit-scrollbar-track {
+            background: rgba(15, 15, 35, 0.3);
+            border-radius: 4px;
+        }
+
+        .section-content::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.6);
+            border-radius: 4px;
+        }
+
+        .section-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.8);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(139, 92, 246, 0.6);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #e2e8f0;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #94a3b8;
+            padding: 2rem;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+        }
+
+        /* Section Containers */
+        .section-container {
+            margin-bottom: 3rem;
+            background: rgba(15, 15, 35, 0.4);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-header {
+            background: rgba(139, 92, 246, 0.1);
+            padding: 1.5rem 2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .section-header:hover {
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin: 0;
+        }
+
+        .toggle-icon {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            transition: transform 0.3s ease;
+        }
+
+        .section-content {
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        /* Cohere Section Styles */
+        .cohere-actions {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .add-cohere-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .add-cohere-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .cohere-categories {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .cohere-categories {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cohere-categories {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cohere-category {
+            background: rgba(15, 15, 35, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .cohere-category h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .cohere-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .cohere-item {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .cohere-item-description,
+        .cohere-item-title {
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+        }
+
+        .cohere-item:hover {
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+        }
+
+        .cohere-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .cohere-item-title {
+            font-weight: 600;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+        }
+
+        .cohere-item-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-open { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .status-under_investigation { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+        .status-in_progress { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+        .status-fixed { background: rgba(34, 197, 94, 0.2); color: #86efac; }
+        .status-pending_validation { background: rgba(168, 85, 247, 0.2); color: #c4b5fd; }
+        .status-backlog { background: rgba(107, 114, 128, 0.2); color: #d1d5db; }
+
+        .cohere-item-description {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .cohere-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 0.75rem;
+        }
+
+        .cohere-item-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .cohere-filter-controls {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(15, 15, 35, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .cohere-filter-controls label {
+            color: #f1f5f9;
+            font-weight: 500;
+            margin-right: 0.75rem;
+        }
+
+        .cohere-filter-controls select {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 6px;
+            color: #f1f5f9;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+            min-width: 200px;
+        }
+
+        .cohere-filter-controls select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        .work-controls {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(15, 15, 35, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        /* Updates Modal Styles */
+        .updates-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .updates-display {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: rgba(15, 15, 35, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .no-updates {
+            color: #94a3b8;
+            font-style: italic;
+            text-align: center;
+            margin: 0;
+        }
+
+        .update-item {
+            background: rgba(15, 15, 35, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .update-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .update-text {
+            color: #f1f5f9;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.4;
+        }
+
+        .update-timestamp {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .updates-input {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .updates-input textarea {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            color: #f1f5f9;
+            padding: 0.75rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .updates-input textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        .add-update-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+        }
+
+        .add-update-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .updates-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .updates-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .meeting-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.75rem;
+        }
+
+        .meeting-item-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .meeting-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-updates-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-updates-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .meeting-toggle-btn {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #c4b5fd;
+        }
+
+        .meeting-toggle-btn:hover {
+            background: rgba(139, 92, 246, 0.3);
+            border-color: rgba(139, 92, 246, 0.5);
+            color: #ddd6fe;
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .undo-btn {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .undo-btn:hover {
+            background: rgba(245, 158, 11, 0.3);
+            border-color: rgba(245, 158, 11, 0.5);
+        }
+
+        /* Done Column Grid Layout */
+        #doneItems {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        #doneItems .work-item {
+            max-width: none;
+            width: 100%;
+        }
+
+        @media (max-width: 1200px) {
+            #doneItems {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            #doneItems {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cohere-item-link {
+            color: #8b5cf6;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .cohere-item-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Meeting Update Section */
+        .meeting-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(15, 15, 35, 0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .toggle-meeting-btn {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #86efac;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-meeting-btn:hover {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .meeting-count {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .meeting-board {
+            background: rgba(15, 15, 35, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .meeting-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .meeting-item {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .meeting-item:hover {
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+        }
+
+        .meeting-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .meeting-item-title {
+            font-weight: 600;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+        }
+
+        .meeting-item-category {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+        }
+
+        /* Focus Area Colors */
+        .meeting-item-category.evaluation {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .meeting-item-category.tools {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .meeting-item-category.adoption {
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        /* Cohere Category Colors */
+        .meeting-item-category.bugs {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .meeting-item-category.features {
+            color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .meeting-item-category.updates {
+            color: #06b6d4;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .meeting-item-description {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .meeting-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        .meeting-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .meeting-btn:hover {
+            border-color: rgba(59, 130, 246, 0.6);
+            background: rgba(59, 130, 246, 0.1);
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .meeting-btn.active {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #86efac;
+        }
+
+        .meeting-btn:empty {
+            background: rgba(75, 85, 99, 0.2);
+            border-color: rgba(75, 85, 99, 0.3);
+            color: #6b7280;
+        }
+
+        .meeting-btn:empty:hover {
+            background: rgba(75, 85, 99, 0.3);
+            border-color: rgba(75, 85, 99, 0.5);
+            color: #9ca3af;
+        }
+
+
+        .toggle-done-btn {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #86efac;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-done-btn:hover {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .done-column {
+            border: 2px solid rgba(34, 197, 94, 0.3);
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .done-column .status-title {
+            color: #86efac;
+        }
+
+        /* Move Options */
+        .move-options {
+            text-align: center;
+        }
+
+        .move-options p {
+            color: #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+
+        .move-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .move-option-btn {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .move-option-btn:hover {
+            border-color: rgba(139, 92, 246, 0.6);
+            background: rgba(139, 92, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1200px) {
+            .board-container {
+                grid-template-columns: repeat(3, minmax(250px, 1fr));
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .board-container {
+                grid-template-columns: repeat(3, minmax(220px, 1fr));
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .board-container {
+                grid-template-columns: repeat(3, minmax(200px, 1fr));
+                gap: 0.75rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .work-item-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .work-item-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .status-column {
+                min-width: 200px;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-text">
+                    <span class="logo-ai">ai</span><span class="logo-dot"></span>
+                    <span class="logo-core">core</span>
+                </span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">🌐 Public View</a>
+                <a href="/admin" class="nav-link">⚙️ Admin Panel</a>
+                <a href="/coe" class="nav-link active">🔬 Our Board</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>🔬 R&I Initiatives</h1>
+            <p>Research & Innovation team's work to improve AI Core</p>
+        </div>
+
+        <button class="add-item-btn" onclick="coeBoard.openAddModal()">
+            ➕ Add R&I Initiative
+        </button>
+
+
+        <!-- AI CoE Meeting Update Section -->
+        <div class="section-container">
+            <div class="section-header" onclick="coeBoard.toggleSection('meetingUpdate')">
+                <h2>📋 AI CoE Meeting Update</h2>
+                <span class="toggle-icon" id="meetingUpdateToggle">▼</span>
+            </div>
+            <div class="section-content" id="meetingUpdateContent">
+                <div class="meeting-controls">
+                    <button class="toggle-meeting-btn" onclick="coeBoard.toggleMeetingView()" id="toggleMeetingBtn">
+                        👁️ Show Meeting Items
+                    </button>
+                    <span class="meeting-count" id="meetingCount">0 items tagged for discussion</span>
+                </div>
+                <div class="meeting-board" id="meetingBoard" style="display: none;">
+                    <div class="meeting-items" id="meetingItems"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Our Work Section -->
+        <div class="section-container">
+            <div class="section-header" onclick="coeBoard.toggleSection('ourWork')">
+                <h2>🔬 Our Work</h2>
+                <span class="toggle-icon" id="ourWorkToggle">▼</span>
+            </div>
+            <div class="section-content" id="ourWorkContent">
+                <div class="work-controls">
+                    <button class="toggle-done-btn" onclick="coeBoard.toggleDoneColumn()" id="toggleDoneBtn">
+                        👁️ Show Done Items
+                    </button>
+                </div>
+                <div class="board-container" id="mainBoard">
+            <div class="status-column">
+                <div class="status-header">
+                    <div class="status-title">🧪 Evaluation & Capabilities</div>
+                    <div class="status-count" id="evaluationCount">0 initiatives</div>
+                </div>
+                <div id="evaluationItems"></div>
+            </div>
+
+            <div class="status-column">
+                <div class="status-header">
+                    <div class="status-title">🔧 Tools & Infrastructure</div>
+                    <div class="status-count" id="toolsCount">0 initiatives</div>
+                </div>
+                <div id="toolsItems"></div>
+            </div>
+
+            <div class="status-column">
+                <div class="status-header">
+                    <div class="status-title">📚 Adoption & Enablement</div>
+                    <div class="status-count" id="adoptionCount">0 initiatives</div>
+                </div>
+                <div id="adoptionItems"></div>
+            </div>
+
+            <div class="status-column done-column" id="doneColumn" style="display: none;">
+                <div class="status-header">
+                    <div class="status-title">✅ Done</div>
+                    <div class="status-count" id="doneCount">0 initiatives</div>
+                </div>
+                <div id="doneItems"></div>
+            </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Working with Cohere Section -->
+        <div class="section-container">
+            <div class="section-header" onclick="coeBoard.toggleSection('cohereWork')">
+                <h2>🤝 Working with Cohere</h2>
+                <span class="toggle-icon" id="cohereWorkToggle">▼</span>
+            </div>
+            <div class="section-content" id="cohereWorkContent">
+                <div class="cohere-actions">
+                    <button class="add-cohere-btn" onclick="coeBoard.openCohereModal()">
+                        ➕ Add Cohere Item
+                    </button>
+                </div>
+                
+                <div class="cohere-filter-controls">
+                    <label for="cohereFilter">Filter by Status:</label>
+                    <select id="cohereFilter" onchange="coeBoard.filterCohereItems()">
+                        <option value="">All Statuses</option>
+                        <option value="open">Open</option>
+                        <option value="under_investigation">Under Investigation</option>
+                        <option value="in_progress">Working on it!</option>
+                        <option value="pending_validation">Pending Validation</option>
+                        <option value="fixed">Fixed</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                
+                <div class="cohere-categories">
+                    <div class="cohere-category">
+                        <h3>🐛 Bugs & Issues</h3>
+                        <div id="bugsItems" class="cohere-items-list"></div>
+                    </div>
+                    <div class="cohere-category">
+                        <h3>💡 Feature Requests</h3>
+                        <div id="featuresItems" class="cohere-items-list"></div>
+                    </div>
+                    <div class="cohere-category">
+                        <h3>📢 Status Updates</h3>
+                        <div id="updatesItems" class="cohere-items-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div class="modal" id="addItemModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="coeBoard.closeAddModal()">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Add R&I Initiative</h2>
+            </div>
+            <form id="addItemForm">
+                <div class="form-group">
+                    <label for="itemTitle">Initiative Title *</label>
+                    <input type="text" id="itemTitle" required placeholder="e.g., Advanced Model Evaluation Framework">
+                </div>
+                <div class="form-group">
+                    <label for="itemDescription">Description *</label>
+                    <textarea id="itemDescription" required placeholder="What is this initiative about? How will it improve AI Core? What impact will it have on other teams?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="itemCategory">Focus Area *</label>
+                    <select id="itemCategory" required>
+                        <option value="">Select focus area</option>
+                        <option value="evaluation">Evaluation & Capabilities</option>
+                        <option value="tools">Tools & Infrastructure</option>
+                        <option value="adoption">Adoption & Enablement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="itemImpact">Expected Impact</label>
+                    <select id="itemImpact">
+                        <option value="low">Low Impact</option>
+                        <option value="medium" selected>Medium Impact</option>
+                        <option value="high">High Impact</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="itemTargetDate">Target Date</label>
+                    <input type="text" id="itemTargetDate" placeholder="e.g., Q2, two months, end of year">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="coeBoard.closeAddModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Cohere Item Modal -->
+    <div class="modal" id="addCohereModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="coeBoard.closeCohereModal()">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Add Cohere Item</h2>
+            </div>
+            <form id="addCohereForm">
+                <div class="form-group">
+                    <label for="cohereTitle">Title *</label>
+                    <input type="text" id="cohereTitle" required placeholder="e.g., API crash on >10 risks">
+                </div>
+                <div class="form-group">
+                    <label for="cohereDescription">Description</label>
+                    <textarea id="cohereDescription" placeholder="Brief description of the issue or request..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="cohereCategory">Category *</label>
+                    <select id="cohereCategory" required>
+                        <option value="">Select category</option>
+                        <option value="bugs">Bugs & Issues</option>
+                        <option value="features">Feature Requests</option>
+                        <option value="updates">Status Updates</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cohereStatus">Status *</label>
+                    <select id="cohereStatus" required>
+                        <option value="">Select status</option>
+                        <option value="open">Open</option>
+                        <option value="under_investigation">Under Investigation</option>
+                        <option value="in_progress">Working on it!</option>
+                        <option value="fixed">Fixed</option>
+                        <option value="pending_validation">Pending Validation</option>
+                        <option value="backlog">Backlog</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cohereLink">Link (optional)</label>
+                    <input type="url" id="cohereLink" placeholder="https://slack.com/thread/... or ticket URL">
+                </div>
+                <div class="form-group">
+                    <label for="cohereTargetDate">Target Date</label>
+                    <input type="text" id="cohereTargetDate" placeholder="e.g., Q2, two months, end of year">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="coeBoard.closeCohereModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Work Item Modal -->
+    <div class="modal" id="editItemModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="coeBoard.closeEditModal()">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Initiative</h2>
+            </div>
+            <form id="editItemForm">
+                <input type="hidden" id="editItemId">
+                <div class="form-group">
+                    <label for="editItemTitle">Initiative Title *</label>
+                    <input type="text" id="editItemTitle" required placeholder="e.g., Advanced Model Evaluation Framework">
+                </div>
+                <div class="form-group">
+                    <label for="editItemDescription">Description *</label>
+                    <textarea id="editItemDescription" required placeholder="What is this initiative about? How will it improve AI Core? What impact will it have on other teams?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editItemCategory">Focus Area *</label>
+                    <select id="editItemCategory" required>
+                        <option value="">Select focus area</option>
+                        <option value="evaluation">Evaluation & Capabilities</option>
+                        <option value="tools">Tools & Infrastructure</option>
+                        <option value="adoption">Adoption & Enablement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editItemImpact">Expected Impact</label>
+                    <select id="editItemImpact">
+                        <option value="low">Low Impact</option>
+                        <option value="medium">Medium Impact</option>
+                        <option value="high">High Impact</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editItemTargetDate">Target Date</label>
+                    <input type="text" id="editItemTargetDate" placeholder="e.g., Q2, two months, end of year">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="coeBoard.closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Initiative</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Move Options Modal -->
+    <div class="modal" id="moveItemModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="coeBoard.closeMoveModal()">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Move Initiative</h2>
+            </div>
+            <div class="move-options">
+                <p>Move "<span id="moveItemTitle"></span>" to:</p>
+                <div class="move-buttons">
+                    <button class="move-option-btn" onclick="coeBoard.moveItem('evaluation')">
+                        🧪 Evaluation & Capabilities
+                    </button>
+                    <button class="move-option-btn" onclick="coeBoard.moveItem('tools')">
+                        🔧 Tools & Infrastructure
+                    </button>
+                    <button class="move-option-btn" onclick="coeBoard.moveItem('adoption')">
+                        📚 Adoption & Enablement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Updates Modal -->
+    <div id="updatesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Updates - <span id="updatesModalTitle">Loading...</span></h2>
+                <span class="close" onclick="coeBoard.closeUpdatesModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="updates-container">
+                    <div class="updates-display" id="updatesDisplay">
+                        <p class="no-updates">No updates yet. Add the first update below!</p>
+                    </div>
+                    <div class="updates-input">
+                        <textarea id="updatesTextarea" placeholder="Add an update..."></textarea>
+                        <button class="add-update-btn" onclick="coeBoard.addUpdate()">Add Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Updates Modal (Read-only) -->
+    <div id="viewUpdatesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Updates - <span id="viewUpdatesModalTitle">Loading...</span></h2>
+                <span class="close" onclick="coeBoard.closeViewUpdatesModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="updates-container">
+                    <div class="updates-display" id="viewUpdatesDisplay">
+                        <p class="no-updates">No updates available.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CoEBoard {
+            constructor() {
+                this.workItems = [];
+                this.cohereItems = [];
+                this.meetingItems = [];
+                this.showMeetingView = false;
+                this.init();
+            }
+
+            init() {
+                this.createParticles();
+                this.loadWorkItems();
+                this.loadCohereItems();
+                this.setupEventListeners();
+            }
+
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = 50;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            setupEventListeners() {
+                document.getElementById('addItemForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addWorkItem();
+                });
+                
+                document.getElementById('addCohereForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const editId = document.getElementById('addCohereForm').getAttribute('data-edit-id');
+                    if (editId) {
+                        this.updateCohereItem();
+                    } else {
+                        this.addCohereItem();
+                    }
+                });
+
+                document.getElementById('editItemForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.updateWorkItem();
+                });
+
+                // Add drag and drop listeners to columns
+                const categories = ['evaluation', 'tools', 'adoption'];
+                categories.forEach(category => {
+                    const container = document.getElementById(`${category}Items`);
+                    if (container) {
+                        container.addEventListener('dragover', this.handleDragOver);
+                        container.addEventListener('drop', this.handleDrop.bind(this));
+                    }
+                });
+            }
+
+            async loadWorkItems() {
+                try {
+                    const response = await fetch('/api/internal-work-items');
+                    if (response.ok) {
+                        this.workItems = await response.json();
+                    } else {
+                        console.log('No internal work items found, starting with empty board');
+                        this.workItems = [];
+                    }
+                    this.renderBoard();
+                    this.updateMeetingCount();
+                } catch (error) {
+                    console.error('Error loading work items:', error);
+                    this.workItems = [];
+                    this.renderBoard();
+                    this.updateMeetingCount();
+                }
+            }
+
+            renderBoard() {
+                const categories = ['evaluation', 'tools', 'adoption', 'done'];
+                
+                categories.forEach(category => {
+                    let items = this.workItems.filter(item => item.category === category);
+                    
+                    // Apply filter if active (but not for done items)
+                    if (this.currentFilter && this.currentFilter !== '' && category !== 'done') {
+                        items = items.filter(item => item.category === this.currentFilter);
+                    }
+                    
+                    const container = document.getElementById(`${category}Items`);
+                    const countElement = document.getElementById(`${category}Count`);
+                    
+                    if (countElement) {
+                        countElement.textContent = `${items.length} initiatives`;
+                    }
+                    
+                    if (items.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <h3>No initiatives</h3>
+                                <p>Add R&I initiatives to get started</p>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = items.map(item => this.renderWorkItem(item)).join('');
+                    }
+                });
+            }
+
+            renderWorkItem(item) {
+                return `
+                    <div class="work-item" data-id="${item.id}" data-category="${item.category}">
+                        <div class="work-item-header">
+                            <div class="work-item-title">${this.escapeHtml(item.title)}</div>
+                            <div class="work-item-actions">
+                                <button class="action-btn meeting-btn ${item.meeting_discussion ? 'active' : ''}" onclick="coeBoard.toggleMeetingTag(${item.id})" title="${item.meeting_discussion ? 'Remove from Meeting' : 'Add to Meeting'}">
+                                    ${item.meeting_discussion ? '📝' : ''}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="work-item-description">${this.escapeHtml(item.description)}</div>
+                        <div class="work-item-meta">
+                            <div class="work-item-info">
+                                ${item.target_date ? `<span>🎯 ${this.escapeHtml(item.target_date)}</span>` : ''}
+                            </div>
+                            <div class="action-buttons">
+                                <button class="action-btn updates-btn" onclick="coeBoard.openUpdatesModal(${item.id}, 'work')" title="Updates">📊</button>
+                                <button class="action-btn edit-btn" onclick="coeBoard.editWorkItem(${item.id})" title="Edit">✏️</button>
+                                <button class="action-btn move-btn" onclick="coeBoard.showMoveOptions(${item.id})" title="Move">↔️</button>
+                                ${item.category === 'done' ? 
+                                    `<button class="action-btn undo-btn" onclick="coeBoard.undoItem(${item.id})" title="Undo">↩️</button>` :
+                                    `<button class="action-btn done-btn" onclick="coeBoard.markAsDone(${item.id})" title="Mark as Done">✅</button>`
+                                }
+                                <button class="action-btn delete-btn" onclick="coeBoard.deleteWorkItem(${item.id})" title="Delete">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            formatDate(dateString) {
+                console.log('formatDate called with:', dateString);
+                if (!dateString) return 'No date';
+                
+                try {
+                    // Handle SQLite datetime format: "2025-09-12 09:03:47"
+                    let date;
+                    if (dateString.includes(' ')) {
+                        // Convert SQLite format to ISO format
+                        const isoString = dateString.replace(' ', 'T') + 'Z';
+                        console.log('Converted to ISO:', isoString);
+                        date = new Date(isoString);
+                    } else {
+                        date = new Date(dateString);
+                    }
+                    
+                    console.log('Parsed date:', date);
+                    if (isNaN(date.getTime())) {
+                        console.error('Invalid date:', dateString);
+                        return 'Invalid date';
+                    }
+                    
+                    const formatted = date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    console.log('Formatted date:', formatted);
+                    return formatted;
+                } catch (error) {
+                    console.error('Date parsing error:', error, 'Input:', dateString);
+                    return 'Invalid date';
+                }
+            }
+
+            getCategoryDisplayName(category) {
+                const categoryMap = {
+                    'evaluation': 'Evaluation & Capabilities',
+                    'tools': 'Tools & Infrastructure',
+                    'adoption': 'Adoption & Enablement'
+                };
+                return categoryMap[category] || category;
+            }
+
+            getCohereCategoryDisplayName(category) {
+                const categoryMap = {
+                    'bugs': 'Bugs & Issues',
+                    'features': 'Feature Requests',
+                    'updates': 'Status Updates'
+                };
+                return categoryMap[category] || category;
+            }
+
+            async addWorkItem() {
+                const title = document.getElementById('itemTitle').value.trim();
+                const description = document.getElementById('itemDescription').value.trim();
+                const category = document.getElementById('itemCategory').value;
+                const impact = document.getElementById('itemImpact').value;
+                const target_date = document.getElementById('itemTargetDate').value.trim();
+
+                if (!title || !description || !category) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/internal-work-items', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            title,
+                            description,
+                            category,
+                            priority: impact,
+                            impact: impact,
+                            target_date: target_date || null,
+                            status: category // Use category as status for the new structure
+                        }),
+                    });
+
+                    if (response.ok) {
+                        const newItem = await response.json();
+                        this.workItems.push(newItem);
+                        this.renderBoard();
+                        this.closeAddModal();
+                        this.resetForm();
+                    } else {
+                        const error = await response.json();
+                        alert('Error adding work item: ' + error.error);
+                    }
+                } catch (error) {
+                    console.error('Error adding work item:', error);
+                    alert('Error adding work item. Please try again.');
+                }
+            }
+
+            openAddModal() {
+                document.getElementById('addItemModal').style.display = 'block';
+                document.getElementById('itemTitle').focus();
+            }
+
+            closeAddModal() {
+                document.getElementById('addItemModal').style.display = 'none';
+                this.resetForm();
+            }
+
+            resetForm() {
+                document.getElementById('addItemForm').reset();
+                document.getElementById('itemImpact').value = 'medium';
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Cohere Items Methods
+            async loadCohereItems() {
+                try {
+                    const response = await fetch('/api/cohere-items');
+                    if (response.ok) {
+                        this.cohereItems = await response.json();
+                    } else {
+                        console.log('No cohere items found, starting with empty list');
+                        this.cohereItems = [];
+                    }
+                    this.renderCohereItems();
+                } catch (error) {
+                    console.error('Error loading cohere items:', error);
+                    this.cohereItems = [];
+                    this.renderCohereItems();
+                }
+            }
+
+            renderCohereItems() {
+                const categories = ['bugs', 'features', 'updates'];
+                
+                categories.forEach(category => {
+                    const items = this.cohereItems.filter(item => item.category === category);
+                    const container = document.getElementById(`${category}Items`);
+                    
+                    if (items.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <p>No ${category} items</p>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = items.map(item => this.renderCohereItem(item)).join('');
+                    }
+                });
+            }
+
+            renderCohereItem(item) {
+                const statusClass = `status-${item.status}`;
+                
+                return `
+                    <div class="cohere-item" data-id="${item.id}" data-category="${item.category}" data-status="${item.status}">
+                        <div class="cohere-item-header">
+                            <div class="cohere-item-title">${this.escapeHtml(item.title)}</div>
+                            <div class="cohere-item-actions">
+                                <span class="cohere-item-status ${statusClass}">${item.status.replace('_', ' ')}</span>
+                                <button class="action-btn meeting-btn ${item.meeting_discussion ? 'active' : ''}" onclick="coeBoard.toggleCohereMeetingTag(${item.id})" title="${item.meeting_discussion ? 'Remove from Meeting' : 'Add to Meeting'}">
+                                    ${item.meeting_discussion ? '📝' : ''}
+                                </button>
+                            </div>
+                        </div>
+                        ${item.description ? `<div class="cohere-item-description">${this.escapeHtml(item.description)}</div>` : ''}
+                        <div class="cohere-item-meta">
+                            <div class="cohere-item-info">
+                                ${item.target_date ? `<span>🎯 ${this.escapeHtml(item.target_date)}</span>` : ''}
+                                ${item.link ? `<a href="${item.link}" target="_blank" class="cohere-item-link">🔗 View</a>` : ''}
+                            </div>
+                            <div class="action-buttons">
+                                <button class="action-btn updates-btn" onclick="coeBoard.openUpdatesModal(${item.id}, 'cohere')" title="Updates">📊</button>
+                                <button class="action-btn edit-btn" onclick="coeBoard.editCohereItem(${item.id})" title="Edit">✏️</button>
+                                <button class="action-btn delete-btn" onclick="coeBoard.deleteCohereItem(${item.id})" title="Delete">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            async addCohereItem() {
+                const title = document.getElementById('cohereTitle').value.trim();
+                const description = document.getElementById('cohereDescription').value.trim();
+                const category = document.getElementById('cohereCategory').value;
+                const status = document.getElementById('cohereStatus').value;
+                const link = document.getElementById('cohereLink').value.trim();
+                const target_date = document.getElementById('cohereTargetDate').value.trim();
+
+                if (!title || !category || !status) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/cohere-items', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            title,
+                            description: description || null,
+                            category,
+                            status,
+                            link: link || null,
+                            target_date: target_date || null
+                        }),
+                    });
+
+                    if (response.ok) {
+                        const newItem = await response.json();
+                        this.cohereItems.push(newItem);
+                        this.renderCohereItems();
+                        this.closeCohereModal();
+                        this.resetCohereForm();
+                    } else {
+                        const error = await response.json();
+                        alert('Error adding cohere item: ' + error.error);
+                    }
+                } catch (error) {
+                    console.error('Error adding cohere item:', error);
+                    alert('Error adding cohere item. Please try again.');
+                }
+            }
+
+            openCohereModal() {
+                document.getElementById('addCohereModal').style.display = 'block';
+                document.getElementById('cohereTitle').focus();
+            }
+
+            closeCohereModal() {
+                document.getElementById('addCohereModal').style.display = 'none';
+                this.resetCohereForm();
+            }
+
+            resetCohereForm() {
+                document.getElementById('addCohereForm').reset();
+                document.getElementById('addCohereForm').removeAttribute('data-edit-id');
+                document.getElementById('addCohereForm').querySelector('button[type="submit"]').textContent = 'Add Item';
+            }
+
+            // Edit Cohere Item
+            editCohereItem(itemId) {
+                const item = this.cohereItems.find(item => item.id === itemId);
+                if (!item) return;
+
+                document.getElementById('cohereTitle').value = item.title;
+                document.getElementById('cohereDescription').value = item.description || '';
+                document.getElementById('cohereCategory').value = item.category;
+                document.getElementById('cohereStatus').value = item.status;
+                document.getElementById('cohereLink').value = item.link || '';
+                document.getElementById('cohereTargetDate').value = item.target_date || '';
+
+                // Change form to edit mode
+                const form = document.getElementById('addCohereForm');
+                form.setAttribute('data-edit-id', itemId);
+                form.querySelector('button[type="submit"]').textContent = 'Update Item';
+                
+                document.getElementById('addCohereModal').style.display = 'block';
+            }
+
+            // Update Cohere Item
+            async updateCohereItem() {
+                const itemId = document.getElementById('addCohereForm').getAttribute('data-edit-id');
+                if (!itemId) return;
+
+                const title = document.getElementById('cohereTitle').value.trim();
+                const description = document.getElementById('cohereDescription').value.trim();
+                const category = document.getElementById('cohereCategory').value;
+                const status = document.getElementById('cohereStatus').value;
+                const link = document.getElementById('cohereLink').value.trim();
+                const target_date = document.getElementById('cohereTargetDate').value.trim();
+
+                if (!title || !category || !status) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/cohere-items/${itemId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            title,
+                            description: description || null,
+                            category,
+                            status,
+                            link: link || null,
+                            target_date: target_date || null
+                        }),
+                    });
+
+                    if (response.ok) {
+                        // Update local data
+                        const itemIndex = this.cohereItems.findIndex(item => item.id == itemId);
+                        if (itemIndex !== -1) {
+                            this.cohereItems[itemIndex] = {
+                                ...this.cohereItems[itemIndex],
+                                title,
+                                description: description || null,
+                                category,
+                                status,
+                                link: link || null
+                            };
+                        }
+                        this.renderCohereItems();
+                        this.closeCohereModal();
+                        this.resetCohereForm();
+                    } else {
+                        const error = await response.json();
+                        alert('Error updating cohere item: ' + error.error);
+                    }
+                } catch (error) {
+                    console.error('Error updating cohere item:', error);
+                    alert('Error updating cohere item. Please try again.');
+                }
+            }
+
+            // Delete Cohere Item
+            async deleteCohereItem(itemId) {
+                const item = this.cohereItems.find(item => item.id == itemId);
+                if (!item) return;
+
+                if (confirm(`Delete "${item.title}"?`)) {
+                    try {
+                        const response = await fetch(`/api/cohere-items/${itemId}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            // Remove from local data
+                            this.cohereItems = this.cohereItems.filter(item => item.id != itemId);
+                            this.renderCohereItems();
+                            
+                            // Update meeting count if needed
+                            this.updateMeetingCount();
+                        } else {
+                            const error = await response.json();
+                            alert('Error deleting cohere item: ' + error.error);
+                        }
+                    } catch (error) {
+                        console.error('Error deleting cohere item:', error);
+                        alert('Error deleting cohere item. Please try again.');
+                    }
+                }
+            }
+
+            // Delete Meeting Item
+            async deleteMeetingItem(itemId, type) {
+                const item = type === 'work' ? 
+                    this.workItems.find(item => item.id == itemId) : 
+                    this.cohereItems.find(item => item.id == itemId);
+                
+                if (!item) return;
+
+                // Quick deletion without confirmation for meeting items
+                try {
+                    const endpoint = type === 'work' ? 
+                        `/api/internal-work-items/${itemId}` : 
+                        `/api/cohere-items/${itemId}`;
+                        
+                    const response = await fetch(endpoint, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        // Remove from local data
+                        if (type === 'work') {
+                            this.workItems = this.workItems.filter(item => item.id != itemId);
+                            this.renderBoard();
+                        } else {
+                            this.cohereItems = this.cohereItems.filter(item => item.id != itemId);
+                            this.renderCohereItems();
+                        }
+                        
+                        // Re-render meeting items
+                        this.renderMeetingItems();
+                        
+                        // Update meeting count
+                        this.updateMeetingCount();
+                        
+                        this.showNotification('Removed from meeting agenda', 'success');
+                    } else {
+                        const error = await response.json();
+                        this.showNotification('Error removing item: ' + error.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error deleting item:', error);
+                    this.showNotification('Error removing item. Please try again.', 'error');
+                }
+            }
+
+            // Toggle Meeting Item (Remove from meeting agenda without deleting)
+            async toggleMeetingItem(itemId, type) {
+                const item = type === 'work' ? 
+                    this.workItems.find(item => item.id == itemId) : 
+                    this.cohereItems.find(item => item.id == itemId);
+                
+                if (!item) return;
+
+                try {
+                    const endpoint = type === 'work' ? 
+                        `/api/internal-work-items/${itemId}/meeting` : 
+                        `/api/cohere-items/${itemId}/meeting`;
+                        
+                    const response = await fetch(endpoint, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            meeting_discussion: false
+                        })
+                    });
+
+                    if (response.ok) {
+                        // Update local data
+                        if (type === 'work') {
+                            const workItem = this.workItems.find(item => item.id == itemId);
+                            if (workItem) workItem.meeting_discussion = false;
+                            this.renderBoard();
+                        } else {
+                            const cohereItem = this.cohereItems.find(item => item.id == itemId);
+                            if (cohereItem) cohereItem.meeting_discussion = false;
+                            this.renderCohereItems();
+                        }
+                        
+                        // Re-render meeting items
+                        this.renderMeetingItems();
+                        
+                        // Update meeting count
+                        this.updateMeetingCount();
+                        
+                        this.showNotification('Removed from meeting agenda', 'success');
+                    } else {
+                        const error = await response.json();
+                        this.showNotification('Error removing from meeting: ' + error.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error toggling meeting item:', error);
+                    this.showNotification('Error removing from meeting. Please try again.', 'error');
+                }
+            }
+
+            // Section Toggle Methods
+            toggleSection(sectionName) {
+                const content = document.getElementById(`${sectionName}Content`);
+                const toggle = document.getElementById(`${sectionName}Toggle`);
+                
+                if (content.classList.contains('collapsed')) {
+                    content.classList.remove('collapsed');
+                    toggle.textContent = '▼';
+                } else {
+                    content.classList.add('collapsed');
+                    toggle.textContent = '▶';
+                }
+            }
+
+            // Meeting Update Methods
+            toggleMeetingTag(itemId) {
+                const item = this.workItems.find(item => item.id == itemId);
+                if (!item) return;
+
+                // Toggle meeting discussion flag
+                item.meeting_discussion = !item.meeting_discussion;
+                
+                // Update in database
+                this.updateWorkItemMeetingStatus(itemId, item.meeting_discussion);
+                
+                // Re-render the board and meeting items
+                this.renderBoard();
+                this.renderMeetingItems();
+                this.updateMeetingCount();
+            }
+
+            toggleCohereMeetingTag(itemId) {
+                const item = this.cohereItems.find(item => item.id == itemId);
+                if (!item) return;
+
+                // Toggle meeting discussion flag
+                item.meeting_discussion = !item.meeting_discussion;
+                
+                // Update in database
+                this.updateCohereItemMeetingStatus(itemId, item.meeting_discussion);
+                
+                // Re-render the cohere items and meeting items
+                this.renderCohereItems();
+                this.renderMeetingItems();
+                this.updateMeetingCount();
+            }
+
+            async updateWorkItemMeetingStatus(itemId, meetingDiscussion) {
+                try {
+                    const response = await fetch(`/api/internal-work-items/${itemId}/meeting`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            meeting_discussion: meetingDiscussion
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        console.error('Error updating meeting status');
+                    }
+                } catch (error) {
+                    console.error('Error updating meeting status:', error);
+                }
+            }
+
+            async updateCohereItemMeetingStatus(itemId, meetingDiscussion) {
+                try {
+                    const response = await fetch(`/api/cohere-items/${itemId}/meeting`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            meeting_discussion: meetingDiscussion
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        console.error('Error updating cohere meeting status');
+                    }
+                } catch (error) {
+                    console.error('Error updating cohere meeting status:', error);
+                }
+            }
+
+            toggleMeetingView() {
+                this.showMeetingView = !this.showMeetingView;
+                const meetingBoard = document.getElementById('meetingBoard');
+                const toggleBtn = document.getElementById('toggleMeetingBtn');
+                
+                if (this.showMeetingView) {
+                    meetingBoard.style.display = 'block';
+                    toggleBtn.textContent = '🙈 Hide Meeting Items';
+                    this.renderMeetingItems();
+                } else {
+                    meetingBoard.style.display = 'none';
+                    toggleBtn.textContent = '👁️ Show Meeting Items';
+                }
+            }
+
+            renderMeetingItems() {
+                const workMeetingItems = this.workItems.filter(item => item.meeting_discussion);
+                const cohereMeetingItems = this.cohereItems.filter(item => item.meeting_discussion);
+                const allMeetingItems = [...workMeetingItems, ...cohereMeetingItems];
+                
+                // Sort by category priority
+                const categoryOrder = {
+                    'evaluation': 1,
+                    'tools': 2, 
+                    'adoption': 3,
+                    'bugs': 4,
+                    'features': 5,
+                    'updates': 6
+                };
+                
+                allMeetingItems.sort((a, b) => {
+                    const aOrder = categoryOrder[a.category] || 999;
+                    const bOrder = categoryOrder[b.category] || 999;
+                    return aOrder - bOrder;
+                });
+                
+                const container = document.getElementById('meetingItems');
+                
+                if (allMeetingItems.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No items tagged for meeting discussion</h3>
+                            <p>Click the empty button on work items or cohere items to tag them for discussion (📝 will appear when tagged)</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = allMeetingItems.map(item => this.renderMeetingItem(item)).join('');
+                }
+            }
+
+            renderMeetingItem(item) {
+                const isCohereItem = this.cohereItems.some(cohereItem => cohereItem.id === item.id);
+                
+                return `
+                    <div class="meeting-item" data-id="${item.id}">
+                        <div class="meeting-item-header">
+                            <div class="meeting-item-title">${this.escapeHtml(item.title)}</div>
+                            <div class="meeting-item-category ${item.category}">
+                                ${isCohereItem ? 
+                                    `${this.getCohereCategoryDisplayName(item.category)}` : 
+                                    `${this.getCategoryDisplayName(item.category)}`
+                                }
+                            </div>
+                        </div>
+                        <div class="meeting-item-description">${this.escapeHtml(item.description || '')}</div>
+                        <div class="meeting-item-meta">
+                            <div class="meeting-item-info">
+                                ${item.target_date ? `<span>🎯 ${this.escapeHtml(item.target_date)}</span>` : ''}
+                                ${isCohereItem ? `<span>🤝 Cohere</span>` : `<span>🔬 Our Work</span>`}
+                            </div>
+                            <div class="meeting-item-actions">
+                                <button class="action-btn view-updates-btn" onclick="coeBoard.openViewUpdatesModal(${item.id}, '${isCohereItem ? 'cohere' : 'work'}')" title="View Updates">📊</button>
+                                <button class="action-btn meeting-toggle-btn" onclick="coeBoard.toggleMeetingItem(${item.id}, '${isCohereItem ? 'cohere' : 'work'}')" title="Remove from Meeting">❌</button>
+                                <button class="action-btn delete-btn" onclick="coeBoard.deleteMeetingItem(${item.id}, '${isCohereItem ? 'cohere' : 'work'}')" title="Delete">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateMeetingCount() {
+                const workMeetingCount = this.workItems.filter(item => item.meeting_discussion).length;
+                const cohereMeetingCount = this.cohereItems.filter(item => item.meeting_discussion).length;
+                const totalMeetingCount = workMeetingCount + cohereMeetingCount;
+                document.getElementById('meetingCount').textContent = `${totalMeetingCount} items tagged for discussion`;
+            }
+
+
+            filterCohereItems() {
+                const filterValue = document.getElementById('cohereFilter').value;
+                const categories = ['bugs', 'features', 'updates'];
+                
+                categories.forEach(category => {
+                    const container = document.getElementById(`${category}Items`);
+                    if (!container) return;
+                    
+                    const items = Array.from(container.children);
+                    items.forEach(item => {
+                        const itemStatus = item.dataset.status;
+                        if (!filterValue || itemStatus === filterValue) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            // Done Column Toggle
+            toggleDoneColumn() {
+                const doneColumn = document.getElementById('doneColumn');
+                const toggleBtn = document.getElementById('toggleDoneBtn');
+                const mainBoard = document.getElementById('mainBoard');
+                const evaluationColumn = document.getElementById('evaluationItems').parentElement;
+                const toolsColumn = document.getElementById('toolsItems').parentElement;
+                const adoptionColumn = document.getElementById('adoptionItems').parentElement;
+                
+                if (doneColumn.style.display === 'none') {
+                    // Show done column, hide others
+                    doneColumn.style.display = 'block';
+                    evaluationColumn.style.display = 'none';
+                    toolsColumn.style.display = 'none';
+                    adoptionColumn.style.display = 'none';
+                    toggleBtn.textContent = '🙈 Hide Done Items';
+                    mainBoard.style.gridTemplateColumns = '1fr';
+                    mainBoard.style.display = 'block';
+                } else {
+                    // Hide done column, show others
+                    doneColumn.style.display = 'none';
+                    evaluationColumn.style.display = 'block';
+                    toolsColumn.style.display = 'block';
+                    adoptionColumn.style.display = 'block';
+                    toggleBtn.textContent = '👁️ Show Done Items';
+                    mainBoard.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                    mainBoard.style.display = 'grid';
+                }
+            }
+
+            // Mark as Done
+            async markAsDone(itemId) {
+                const item = this.workItems.find(item => item.id == itemId);
+                if (!item) return;
+
+                if (confirm(`Mark "${item.title}" as done?`)) {
+                    try {
+                        const response = await fetch(`/api/internal-work-items/${itemId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                title: item.title,
+                                description: item.description,
+                                category: 'done',
+                                priority: item.priority,
+                                impact: item.impact,
+                                target_date: item.target_date,
+                                status: 'done'
+                            }),
+                        });
+
+                        if (response.ok) {
+                            // Update local data
+                            const itemIndex = this.workItems.findIndex(item => item.id == itemId);
+                            if (itemIndex !== -1) {
+                                this.workItems[itemIndex].category = 'done';
+                                this.workItems[itemIndex].status = 'done';
+                            }
+                            this.renderBoard();
+                        } else {
+                            const error = await response.json();
+                            alert('Error marking as done: ' + error.error);
+                        }
+                    } catch (error) {
+                        console.error('Error marking as done:', error);
+                        alert('Error marking as done. Please try again.');
+                    }
+                }
+            }
+
+            // Undo Item (move back from done)
+            async undoItem(itemId) {
+                const item = this.workItems.find(item => item.id == itemId);
+                if (!item) return;
+
+                // Determine the original category based on the item's properties
+                let originalCategory = 'evaluation'; // default
+                
+                // You can add logic here to determine the original category
+                // For now, we'll move it back to evaluation
+                
+                if (confirm(`Move "${item.title}" back to active work?`)) {
+                    try {
+                        const response = await fetch(`/api/internal-work-items/${itemId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ 
+                                title: item.title,
+                                description: item.description,
+                                category: originalCategory,
+                                priority: item.priority,
+                                impact: item.impact,
+                                target_date: item.target_date,
+                                status: 'research' // Reset to research status
+                            })
+                        });
+
+                        if (response.ok) {
+                            // Update local data
+                            const itemIndex = this.workItems.findIndex(item => item.id == itemId);
+                            if (itemIndex !== -1) {
+                                this.workItems[itemIndex].category = originalCategory;
+                                this.workItems[itemIndex].status = 'research';
+                            }
+                            this.renderBoard();
+                        } else {
+                            const error = await response.json();
+                            alert('Error undoing item: ' + error.error);
+                        }
+                    } catch (error) {
+                        console.error('Error undoing item:', error);
+                        alert('Error undoing item. Please try again.');
+                    }
+                }
+            }
+
+            // Delete Work Item
+            async deleteWorkItem(itemId) {
+                const item = this.workItems.find(item => item.id == itemId);
+                if (!item) return;
+
+                if (confirm(`Are you sure you want to delete "${item.title}"? This action cannot be undone.`)) {
+                    try {
+                        const response = await fetch(`/api/internal-work-items/${itemId}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            // Remove from local data
+                            this.workItems = this.workItems.filter(item => item.id != itemId);
+                            
+                            // Re-render the board
+                            this.renderBoard();
+                            
+                            // Update meeting count if needed
+                            this.updateMeetingCount();
+                        } else {
+                            const error = await response.json();
+                            alert('Error deleting item: ' + error.error);
+                        }
+                    } catch (error) {
+                        console.error('Error deleting item:', error);
+                        alert('Error deleting item. Please try again.');
+                    }
+                }
+            }
+
+            // Edit and Move Methods
+            editWorkItem(itemId) {
+                const item = this.workItems.find(item => item.id === itemId);
+                if (!item) return;
+
+                document.getElementById('editItemId').value = item.id;
+                document.getElementById('editItemTitle').value = item.title;
+                document.getElementById('editItemDescription').value = item.description;
+                document.getElementById('editItemCategory').value = item.category;
+                document.getElementById('editItemImpact').value = item.impact || item.priority;
+                document.getElementById('editItemTargetDate').value = item.target_date || '';
+
+                document.getElementById('editItemModal').style.display = 'block';
+            }
+
+            async updateWorkItem() {
+                const id = document.getElementById('editItemId').value;
+                const title = document.getElementById('editItemTitle').value.trim();
+                const description = document.getElementById('editItemDescription').value.trim();
+                const category = document.getElementById('editItemCategory').value;
+                const impact = document.getElementById('editItemImpact').value;
+                const target_date = document.getElementById('editItemTargetDate').value.trim();
+
+                if (!title || !description || !category) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/internal-work-items/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            title,
+                            description,
+                            category,
+                            priority: impact,
+                            impact: impact,
+                            target_date: target_date || null,
+                            status: category
+                        }),
+                    });
+
+                    if (response.ok) {
+                        // Update local data
+                        const itemIndex = this.workItems.findIndex(item => item.id == id);
+                        if (itemIndex !== -1) {
+                            this.workItems[itemIndex] = {
+                                ...this.workItems[itemIndex],
+                                title,
+                                description,
+                                category,
+                                priority: impact,
+                                impact: impact,
+                                target_date: target_date || null,
+                                status: category
+                            };
+                        }
+                        this.renderBoard();
+                        this.closeEditModal();
+                    } else {
+                        const error = await response.json();
+                        alert('Error updating initiative: ' + error.error);
+                    }
+                } catch (error) {
+                    console.error('Error updating initiative:', error);
+                    alert('Error updating initiative. Please try again.');
+                }
+            }
+
+            closeEditModal() {
+                document.getElementById('editItemModal').style.display = 'none';
+            }
+
+            showMoveOptions(itemId) {
+                const item = this.workItems.find(item => item.id === itemId);
+                if (!item) return;
+
+                document.getElementById('moveItemTitle').textContent = item.title;
+                document.getElementById('moveItemModal').setAttribute('data-item-id', itemId);
+                document.getElementById('moveItemModal').style.display = 'block';
+            }
+
+            async moveItem(newCategory) {
+                const itemId = document.getElementById('moveItemModal').getAttribute('data-item-id');
+                const item = this.workItems.find(item => item.id == itemId);
+                if (!item) return;
+
+                try {
+                    const response = await fetch(`/api/internal-work-items/${itemId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            title: item.title,
+                            description: item.description,
+                            category: newCategory,
+                            priority: item.priority,
+                            impact: item.impact,
+                            timeline: item.timeline,
+                            status: newCategory
+                        }),
+                    });
+
+                    if (response.ok) {
+                        // Update local data
+                        const itemIndex = this.workItems.findIndex(item => item.id == itemId);
+                        if (itemIndex !== -1) {
+                            this.workItems[itemIndex].category = newCategory;
+                            this.workItems[itemIndex].status = newCategory;
+                        }
+                        this.renderBoard();
+                        this.closeMoveModal();
+                    } else {
+                        const error = await response.json();
+                        alert('Error moving initiative: ' + error.error);
+                    }
+                } catch (error) {
+                    console.error('Error moving initiative:', error);
+                    alert('Error moving initiative. Please try again.');
+                }
+            }
+
+            closeMoveModal() {
+                document.getElementById('moveItemModal').style.display = 'none';
+            }
+
+            // Filter Methods
+            filterByCategory() {
+                const selectedCategory = document.getElementById('categoryFilter').value;
+                this.currentFilter = selectedCategory;
+                this.renderBoard();
+            }
+
+            clearFilters() {
+                document.getElementById('categoryFilter').value = '';
+                this.currentFilter = null;
+                this.renderBoard();
+            }
+
+            // Drag and Drop Methods
+            handleDragStart(event) {
+                event.dataTransfer.setData('text/plain', event.target.dataset.id);
+                event.target.classList.add('dragging');
+            }
+
+            handleDragOver(event) {
+                event.preventDefault();
+            }
+
+            handleDrop(event) {
+                event.preventDefault();
+                const itemId = event.dataTransfer.getData('text/plain');
+                const targetCategory = event.target.closest('.status-column')?.id.replace('Items', '');
+                
+                if (targetCategory && targetCategory !== '') {
+                    this.moveItemToCategory(itemId, targetCategory);
+                }
+            }
+
+            async moveItemToCategory(itemId, newCategory) {
+                const item = this.workItems.find(item => item.id == itemId);
+                if (!item) return;
+
+                try {
+                    const response = await fetch(`/api/internal-work-items/${itemId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            title: item.title,
+                            description: item.description,
+                            category: newCategory,
+                            priority: item.priority,
+                            impact: item.impact,
+                            timeline: item.timeline,
+                            status: newCategory
+                        }),
+                    });
+
+                    if (response.ok) {
+                        // Update local data
+                        const itemIndex = this.workItems.findIndex(item => item.id == itemId);
+                        if (itemIndex !== -1) {
+                            this.workItems[itemIndex].category = newCategory;
+                            this.workItems[itemIndex].status = newCategory;
+                        }
+                        this.renderBoard();
+                    }
+                } catch (error) {
+                    console.error('Error moving item:', error);
+                }
+            }
+
+            // Updates functionality
+            openUpdatesModal(itemId, type) {
+                this.currentUpdatesItem = { id: itemId, type: type };
+                const modal = document.getElementById('updatesModal');
+                modal.style.display = 'block';
+                
+                // Set the title
+                let item;
+                if (type === 'work') {
+                    item = this.workItems.find(item => item.id == itemId);
+                } else {
+                    item = this.cohereItems.find(item => item.id == itemId);
+                }
+                
+                const titleElement = document.getElementById('updatesModalTitle');
+                if (item && titleElement) {
+                    titleElement.textContent = this.escapeHtml(item.title);
+                }
+                
+                // Load existing updates
+                this.loadUpdates(itemId, type);
+            }
+
+            closeUpdatesModal() {
+                const modal = document.getElementById('updatesModal');
+                modal.style.display = 'none';
+                document.getElementById('updatesTextarea').value = '';
+                this.currentUpdatesItem = null;
+            }
+
+            openViewUpdatesModal(itemId, type) {
+                this.currentViewUpdatesItem = { id: itemId, type: type };
+                const modal = document.getElementById('viewUpdatesModal');
+                modal.style.display = 'block';
+                
+                // Set the title
+                let item;
+                if (type === 'work') {
+                    item = this.workItems.find(item => item.id == itemId);
+                } else {
+                    item = this.cohereItems.find(item => item.id == itemId);
+                }
+                
+                const titleElement = document.getElementById('viewUpdatesModalTitle');
+                if (item && titleElement) {
+                    titleElement.textContent = this.escapeHtml(item.title);
+                }
+                
+                // Load existing updates for viewing only
+                this.loadViewUpdates(itemId, type);
+            }
+
+            closeViewUpdatesModal() {
+                const modal = document.getElementById('viewUpdatesModal');
+                modal.style.display = 'none';
+                this.currentViewUpdatesItem = null;
+            }
+
+            async loadViewUpdates(itemId, type) {
+                try {
+                    let item;
+                    if (type === 'work') {
+                        item = this.workItems.find(item => item.id == itemId);
+                    } else {
+                        item = this.cohereItems.find(item => item.id == itemId);
+                    }
+                    
+                    if (item && item.updates) {
+                        this.displayViewUpdates(item.updates);
+                    } else {
+                        this.displayViewUpdates('');
+                    }
+                } catch (error) {
+                    console.error('Error loading updates:', error);
+                    this.displayViewUpdates('');
+                }
+            }
+
+            displayViewUpdates(updatesText) {
+                const display = document.getElementById('viewUpdatesDisplay');
+                
+                if (!updatesText || updatesText.trim() === '') {
+                    display.innerHTML = '<p class="no-updates">No updates available.</p>';
+                    return;
+                }
+
+                // Parse updates (assuming each update is on a new line with timestamp)
+                const updates = updatesText.split('\n').filter(update => update.trim() !== '');
+                const updatesHtml = updates.map(update => {
+                    const timestamp = new Date().toLocaleString();
+                    return `
+                        <div class="update-item">
+                            <p class="update-text">${this.escapeHtml(update)}</p>
+                            <p class="update-timestamp">${timestamp}</p>
+                        </div>
+                    `;
+                }).join('');
+
+                display.innerHTML = updatesHtml;
+            }
+
+            async loadUpdates(itemId, type) {
+                try {
+                    let item;
+                    if (type === 'work') {
+                        item = this.workItems.find(item => item.id == itemId);
+                    } else {
+                        item = this.cohereItems.find(item => item.id == itemId);
+                    }
+                    
+                    if (item && item.updates) {
+                        this.displayUpdates(item.updates);
+                    } else {
+                        this.displayUpdates('');
+                    }
+                } catch (error) {
+                    console.error('Error loading updates:', error);
+                    this.displayUpdates('');
+                }
+            }
+
+            displayUpdates(updatesText) {
+                const display = document.getElementById('updatesDisplay');
+                
+                if (!updatesText || updatesText.trim() === '') {
+                    display.innerHTML = '<p class="no-updates">No updates yet. Add the first update below!</p>';
+                    return;
+                }
+
+                // Parse updates (assuming each update is on a new line with timestamp)
+                const updates = updatesText.split('\n').filter(update => update.trim() !== '');
+                const updatesHtml = updates.map(update => {
+                    const timestamp = new Date().toLocaleString();
+                    return `
+                        <div class="update-item">
+                            <p class="update-text">${this.escapeHtml(update)}</p>
+                            <p class="update-timestamp">${timestamp}</p>
+                        </div>
+                    `;
+                }).join('');
+
+                display.innerHTML = updatesHtml;
+            }
+
+            async addUpdate() {
+                const textarea = document.getElementById('updatesTextarea');
+                const newUpdate = textarea.value.trim();
+                
+                if (!newUpdate) {
+                    alert('Please enter an update');
+                    return;
+                }
+
+                if (!this.currentUpdatesItem) {
+                    alert('No item selected');
+                    return;
+                }
+
+                try {
+                    const { id, type } = this.currentUpdatesItem;
+                    let item;
+                    
+                    if (type === 'work') {
+                        item = this.workItems.find(item => item.id == id);
+                    } else {
+                        item = this.cohereItems.find(item => item.id == id);
+                    }
+
+                    if (!item) {
+                        alert('Item not found');
+                        return;
+                    }
+
+                    // Add new update to existing updates
+                    const existingUpdates = item.updates || '';
+                    const updatedUpdates = existingUpdates ? `${existingUpdates}\n${newUpdate}` : newUpdate;
+
+                    // Update in database
+                    const response = await fetch(`/api/${type === 'work' ? 'internal-work-items' : 'cohere-items'}/${id}/updates`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ updates: updatedUpdates })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to save update');
+                    }
+
+                    // Update local data
+                    item.updates = updatedUpdates;
+
+                    // Refresh display
+                    this.displayUpdates(updatedUpdates);
+                    textarea.value = '';
+
+                } catch (error) {
+                    console.error('Error adding update:', error);
+                    alert('Failed to save update');
+                }
+            }
+        }
+
+        // Initialize the CoE Board
+        const coeBoard = new CoEBoard();
+    </script>
+</body>
+</html> 

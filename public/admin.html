@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>AI Core - Admin Panel</title>
     <style>
         * {
@@ -12,16 +15,16 @@
         }
 
         body {
-            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2d1b69 100%);
             color: #e2e8f0;
+            line-height: 1.6;
+            font-size: 16px;
             min-height: 100vh;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* Floating particles background */
-        .particles {
+        .floating-particles {
             position: fixed;
             top: 0;
             left: 0;
@@ -35,522 +38,795 @@
             position: absolute;
             width: 2px;
             height: 2px;
-            background: #8b5cf6;
+            background: rgba(139, 92, 246, 0.5);
             border-radius: 50%;
             animation: float 6s ease-in-out infinite;
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
-            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            50% { transform: translateY(-100px) rotate(180deg); opacity: 1; }
         }
 
-        /* Main container */
-        .container {
+        .top-navbar {
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Header */
-        .header {
+            padding: 0 2rem;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 3rem;
-            padding: 1.5rem 0;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            align-items: center;
         }
 
-        .logo {
+        .nav-logo .logo-text {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            color: #8b5cf6 !important;
+            letter-spacing: -0.03em !important;
+            line-height: 1 !important;
+        }
+
+        .nav-logo .logo-ai {
+            color: #8b5cf6 !important;
+            font-weight: 600 !important;
+        }
+
+        .nav-logo .logo-dot {
+            color: #8b5cf6 !important;
+            margin: 0 0.15rem !important;
+            font-weight: 600 !important;
+        }
+
+        .nav-logo .logo-core {
+            color: #cbd5e1 !important;
+            font-weight: 400 !important;
+        }
+
+        .nav-links {
             display: flex;
-            align-items: center;
             gap: 1rem;
         }
 
-        .admin-badge {
-            background: linear-gradient(135deg, #ec4899, #8b5cf6);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+        .nav-links .nav-link {
+            background: rgba(15, 15, 35, 0.8) !important;
+            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+            color: #e2e8f0 !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px !important;
+            text-decoration: none !important;
+            font-weight: 500 !important;
+            font-size: 0.9rem !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            transition: all 0.3s ease !important;
+            line-height: 1 !important;
+            height: 2.25rem !important;
+            min-height: 2.25rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+            white-space: nowrap !important;
         }
 
-        .logo-text {
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .nav-links .nav-link:hover {
+            border-color: rgba(139, 92, 246, 0.6) !important;
+            background: rgba(139, 92, 246, 0.1) !important;
+        }
+
+        .nav-links .nav-link.active {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7) !important;
+            border-color: #8b5cf6 !important;
+            color: white !important;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .sidebar {
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 2rem;
+            overflow-y: auto;
         }
 
         .back-btn {
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            color: #8b5cf6;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: 500;
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            backdrop-filter: blur(10px);
+            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
         .back-btn:hover {
-            background: rgba(139, 92, 246, 0.2);
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
         }
 
-        /* Main content */
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 2rem;
-        }
-
-        /* Left panel - Features management */
-        .features-panel {
-            background: rgba(255, 255, 255, 0.05);
+        .header {
+            margin-bottom: 2.5rem;
+            position: relative;
+            background: rgba(15, 15, 35, 0.3);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 0, 128, 0.2);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
             padding: 2rem;
+            text-align: center;
         }
 
-        .panel-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
+        .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-        }
-
-        .features-list {
-            max-height: 600px;
-            overflow-y: auto;
-            margin-bottom: 2rem;
-        }
-
-        .feature-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
+            justify-content: center;
             margin-bottom: 1rem;
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+        }
+
+        .logo-ai {
+            color: #ff0080;
+        }
+
+        .logo-core {
+            color: #8b5cf6;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff0080, #ff6b9d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(255, 0, 128, 0.3);
+        }
+
+        .header p {
+            color: #cbd5e1;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+
+        .features-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: rgba(15, 15, 35, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .features-header h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+        }
+
+        .sort-options {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(15, 15, 35, 0.9);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .sort-btn {
+            background: transparent;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #94a3b8;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
 
+        .sort-btn.active {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            border-color: #8b5cf6;
+        }
+
+        .sort-btn:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: #8b5cf6;
+            color: #e2e8f0;
+        }
+
+        #featuresContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            background: rgba(15, 15, 35, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
         .feature-item:hover {
-            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
             transform: translateY(-2px);
         }
 
-        .feature-header {
-            display: flex;
-            justify-content: between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
         .feature-title {
-            font-size: 1.125rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #f1f5f9;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .feature-description {
-            color: #94a3b8;
-            line-height: 1.6;
+            color: #cbd5e1;
             margin-bottom: 1rem;
+            line-height: 1.6;
+            font-size: 0.9rem;
         }
 
         .feature-meta {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 0.75rem;
             margin-bottom: 1rem;
         }
 
-        .feature-stats {
+        .vote-count {
+            font-weight: 600;
+            color: #f1f5f9;
+            min-width: 24px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .vote-btn {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #94a3b8;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             display: flex;
-            gap: 1rem;
-            color: #64748b;
-            font-size: 0.875rem;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .vote-btn:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: #8b5cf6;
+            color: #e2e8f0;
+        }
+
+        .feature-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .convert-work-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .convert-work-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+        }
+
+        .convert-cohere-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .convert-cohere-btn:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+        }
+
+        .edit-btn {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .edit-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .delete-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
         }
 
         .status-select {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 15, 35, 0.9);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
             color: #e2e8f0;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .status-select:focus {
             outline: none;
             border-color: #8b5cf6;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
 
-        .feature-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .delete-btn {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ef4444;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .delete-btn:hover {
-            background: rgba(239, 68, 68, 0.2);
-            transform: translateY(-1px);
-        }
-
-        /* Right panel - Add feature form */
-        .add-feature-panel {
-            background: rgba(255, 255, 255, 0.05);
+        .form-section {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            padding: 2rem;
-            height: fit-content;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-section h2::before {
+            content: '⚡';
+            font-size: 1.1rem;
         }
 
         .form-group {
             margin-bottom: 1.5rem;
         }
 
-        .form-label {
+        .form-group label {
             display: block;
             font-weight: 500;
             margin-bottom: 0.5rem;
-            color: #f1f5f9;
-        }
-
-        .form-input, .form-textarea {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #e2e8f0;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
 
-        .form-input:focus, .form-textarea:focus {
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 15, 35, 0.9);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #8b5cf6;
             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
 
-        .form-textarea {
+        .form-group textarea {
             resize: vertical;
             min-height: 100px;
         }
 
         .btn {
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.875rem;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
         }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Status badges */
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-requested { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .status-roadmap { background: rgba(168, 85, 247, 0.2); color: #a78bfa; }
-        .status-watching { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-        .status-progress { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .status-shipped { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-
-        /* Notifications */
         .notification {
             position: fixed;
             top: 2rem;
             right: 2rem;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
             padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
+            border-radius: 12px;
             font-weight: 500;
-            z-index: 1000;
-            transform: translateX(100%);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+            transform: translateX(400px);
             transition: transform 0.3s ease;
+            z-index: 1000;
         }
 
         .notification.show {
             transform: translateX(0);
         }
 
-        .notification.success {
-            background: rgba(34, 197, 94, 0.9);
-            color: white;
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
         }
 
-        .notification.error {
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-        }
-
-        /* Loading state */
-        .loading {
-            text-align: center;
+        .modal-content {
+            background: rgba(15, 15, 35, 0.95);
+            margin: 5% auto;
             padding: 2rem;
-            color: #64748b;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            backdrop-filter: blur(20px);
         }
 
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(139, 92, 246, 0.3);
-            border-radius: 50%;
-            border-top-color: #8b5cf6;
-            animation: spin 1s ease-in-out infinite;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .modal-header h3 {
+            color: #f1f5f9;
+            font-size: 1.3rem;
+            font-weight: 600;
         }
 
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
+        .close {
+            color: #94a3b8;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #f1f5f9;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 1rem;
+                grid-template-columns: 1fr;
             }
-            
-            .header {
-                flex-direction: column;
+
+            .sidebar {
+                border-left: none;
+                border-top: 1px solid rgba(139, 92, 246, 0.2);
+            }
+
+            #featuresContainer {
+                grid-template-columns: 1fr;
                 gap: 1rem;
-                text-align: center;
+            }
+
+            .back-btn {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 2rem;
+                display: inline-flex;
+            }
+
+            .features-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .sort-options {
+                width: 100%;
+                justify-content: flex-start;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Floating particles -->
-    <div class="particles" id="particles"></div>
+    <div class="floating-particles" id="particles"></div>
+    
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-text">
+                    <span class="logo-ai">ai</span><span class="logo-dot"></span>
+                    <span class="logo-core">core</span>
+                </span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">🌐 Public View</a>
+                <a href="/admin" class="nav-link active">⚙️ Admin Panel</a>
+                <a href="/coe" class="nav-link">🔬 Our Board</a>
+            </div>
+        </div>
+    </nav>
 
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">
-                <div class="admin-badge">
-                    <span>🔧</span>
-                    Admin Panel
-                </div>
-                <div class="logo-text">core</div>
+        <div class="main-content">
+            <div class="header">
+                <h1>Admin Panel</h1>
+                <p>Manage features and update their status</p>
             </div>
-            <a href="/" class="back-btn">
-                <span>←</span>
-                Back to Features
-            </a>
+
+            <div class="features-header">
+                <h2>🔧 Manage Features</h2>
+                <div class="sort-options">
+                    <button class="sort-btn active" data-sort="votes">Most Voted</button>
+                    <button class="sort-btn" data-sort="newest">Newest</button>
+                    <button class="sort-btn" data-sort="oldest">Oldest</button>
+                </div>
+            </div>
+
+            <div id="featuresContainer">
+                <!-- Features will be loaded here -->
+            </div>
         </div>
 
-        <!-- Main content -->
-        <div class="main-content">
-            <!-- Features management panel -->
-            <div class="features-panel">
-                <h2 class="panel-title">
-                    <span>⚡</span>
-                    Manage Features
-                </h2>
-                
-                <div class="features-list" id="featuresList">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Loading features...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add feature panel -->
-            <div class="add-feature-panel">
-                <h2 class="panel-title">
-                    <span>💡</span>
-                    Add New Feature
-                </h2>
-                
-                <form id="addFeatureForm">
+        <div class="sidebar">
+            <div class="form-section" id="add">
+                <h2>Add New Feature</h2>
+                <form id="featureForm">
                     <div class="form-group">
-                        <label class="form-label" for="featureTitle">Feature Title</label>
-                        <input 
-                            type="text" 
-                            id="featureTitle" 
-                            class="form-input" 
-                            placeholder="e.g., Voice Commands, Smart Templates..."
-                            required
-                        >
+                        <label for="featureTitle">Feature Title</label>
+                        <input type="text" id="featureTitle" placeholder="e.g., Advanced AI Model Training" required>
                     </div>
-                    
                     <div class="form-group">
-                        <label class="form-label" for="featureDescription">Description (Optional)</label>
-                        <textarea 
-                            id="featureDescription" 
-                            class="form-textarea" 
-                            placeholder="Additional details about this feature (optional)"
-                        ></textarea>
+                        <label for="featureDescription">Description</label>
+                        <textarea id="featureDescription" placeholder="Describe what this feature should do and why it would be valuable" required></textarea>
                     </div>
-                    
                     <div class="form-group">
-                        <label class="form-label" for="featureStatus">Initial Status</label>
-                        <select id="featureStatus" class="form-input">
+                        <label for="featureStatus">Initial Status</label>
+                        <select id="featureStatus">
                             <option value="requested">Requested</option>
-                            <option value="roadmap">Roadmap</option>
-                            <option value="watching">Watching</option>
-                            <option value="progress">In Progress</option>
+                            <option value="roadmap">In Roadmap</option>
+                            <option value="watching">We're Watching</option>
+                            <option value="progress">Working on it!</option>
                             <option value="shipped">Shipped</option>
                         </select>
                     </div>
-                    
-                    <button type="submit" class="btn" id="addFeatureBtn">
-                        ✨ Add Feature
-                    </button>
+                    <button type="submit" class="btn">Add Feature</button>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Feature</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="editFeatureTitle">Feature Title</label>
+                    <input type="text" id="editFeatureTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editFeatureDescription">Description</label>
+                    <textarea id="editFeatureDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editFeatureStatus">Status</label>
+                    <select id="editFeatureStatus">
+                        <option value="requested">Requested</option>
+                        <option value="roadmap">In Roadmap</option>
+                        <option value="watching">We're Watching</option>
+                        <option value="progress">Working on it!</option>
+                        <option value="shipped">Shipped</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editFeatureComment">AI Core Comment</label>
+                    <textarea id="editFeatureComment" placeholder="Add a comment explaining the status, timeline, or any updates..."></textarea>
+                </div>
+                <button type="submit" class="btn">Update Feature</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
     <script>
         class AdminPanel {
             constructor() {
                 this.features = [];
-                this.init();
-            }
-
-            init() {
-                this.createParticles();
-                this.bindEvents();
+                this.currentSort = 'votes';
+                this.editingFeatureId = null;
                 this.loadFeatures();
-            }
-
-            createParticles() {
-                const particlesContainer = document.getElementById('particles');
-                const particleCount = 50;
-
-                for (let i = 0; i < particleCount; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = Math.random() * 100 + '%';
-                    particle.style.top = Math.random() * 100 + '%';
-                    particle.style.animationDelay = Math.random() * 6 + 's';
-                    particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
-                    particlesContainer.appendChild(particle);
-                }
-            }
-
-            bindEvents() {
-                document.getElementById('addFeatureForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addFeature();
-                });
+                this.bindEvents();
             }
 
             async loadFeatures() {
                 try {
                     const response = await fetch('/api/features');
-                    const features = await response.json();
-                    this.features = features;
-                    this.renderFeatures();
+                    if (response.ok) {
+                        this.features = await response.json();
+                        this.renderFeatures();
+                    }
                 } catch (error) {
                     console.error('Error loading features:', error);
-                    this.showNotification('Error loading features', 'error');
                 }
             }
 
             renderFeatures() {
-                const container = document.getElementById('featuresList');
-                
+                const container = document.getElementById('featuresContainer');
+                container.innerHTML = '';
+
                 if (this.features.length === 0) {
-                    container.innerHTML = `
-                        <div class="loading">
-                            <p>No features found</p>
-                        </div>
-                    `;
+                    container.innerHTML = '<p style="color: #64748b; text-align: center; grid-column: 1 / -1;">No features found.</p>';
                     return;
                 }
 
-                container.innerHTML = this.features.map(feature => {
-                    const date = new Date(feature.createdAt).toLocaleDateString();
-                    return `
-                        <div class="feature-item">
-                            <div class="feature-header">
-                                <h3 class="feature-title">${this.escapeHtml(feature.title)}</h3>
-                            </div>
-                            <p class="feature-description">${this.escapeHtml(feature.description)}</p>
-                            <div class="feature-meta">
-                                <div class="feature-stats">
-                                    <span>📅 ${date}</span>
-                                    <span>👍 ${feature.votes} votes</span>
-                                    <span>👤 ${feature.addedBy}</span>
-                                </div>
-                                <div class="feature-actions">
-                                    <select class="status-select" data-feature-id="${feature.id}" onchange="adminPanel.updateFeatureStatus(${feature.id}, this.value)">
-                                        <option value="requested" ${feature.status === 'requested' ? 'selected' : ''}>Requested</option>
-                                        <option value="roadmap" ${feature.status === 'roadmap' ? 'selected' : ''}>Roadmap</option>
-                                        <option value="watching" ${feature.status === 'watching' ? 'selected' : ''}>Watching</option>
-                                        <option value="progress" ${feature.status === 'progress' ? 'selected' : ''}>In Progress</option>
-                                        <option value="shipped" ${feature.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                                    </select>
-                                    <button class="delete-btn" onclick="adminPanel.deleteFeature(${feature.id}, '${this.escapeHtml(feature.title)}')">
-                                        🗑️ Delete
-                                    </button>
-                                </div>
-                            </div>
+                const sortedFeatures = [...this.features].sort((a, b) => {
+                    switch (this.currentSort) {
+                        case 'votes':
+                            return b.votes - a.votes;
+                        case 'newest':
+                            return new Date(b.createdAt) - new Date(a.createdAt);
+                        case 'oldest':
+                            return new Date(a.createdAt) - new Date(b.createdAt);
+                        default:
+                            return 0;
+                    }
+                });
+
+                sortedFeatures.forEach(feature => {
+                    const item = document.createElement('div');
+                    item.className = 'feature-item';
+                    item.innerHTML = `
+                        <div class="feature-title">
+                            ${this.escapeHtml(feature.title)}
+                        </div>
+                        <div class="feature-description">
+                            ${this.escapeHtml(feature.description)}
+                        </div>
+                        <div class="feature-meta">
+                            <span class="vote-count">${feature.votes} votes</span>
+                        </div>
+                        <div class="feature-actions">
+                            <select class="status-select" data-feature-id="${feature.id}">
+                                <option value="requested" ${feature.status === 'requested' ? 'selected' : ''}>Requested</option>
+                                <option value="roadmap" ${feature.status === 'roadmap' ? 'selected' : ''}>In Roadmap</option>
+                                <option value="watching" ${feature.status === 'watching' ? 'selected' : ''}>We're Watching</option>
+                                <option value="progress" ${feature.status === 'progress' ? 'selected' : ''}>Working on it!</option>
+                                <option value="shipped" ${feature.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                            </select>
+                            <button class="action-btn convert-work-btn" data-feature-id="${feature.id}" title="Convert to Our Work">🧪</button>
+                            <button class="action-btn convert-cohere-btn" data-feature-id="${feature.id}" title="Convert to Cohere">🤝</button>
+                            <button class="action-btn edit-btn" data-feature-id="${feature.id}">Edit</button>
+                            <button class="action-btn delete-btn" data-feature-id="${feature.id}">Delete</button>
                         </div>
                     `;
-                }).join('');
+                    container.appendChild(item);
+                });
+            }
+
+            async updateFeatureStatus(featureId, newStatus) {
+                try {
+                    const response = await fetch(`/api/features/${featureId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: newStatus }),
+                    });
+
+                    if (response.ok) {
+                        this.showNotification('Feature status updated successfully!');
+                        this.loadFeatures(); // Reload features
+                    } else {
+                        this.showNotification('Error updating feature status');
+                    }
+                } catch (error) {
+                    console.error('Error updating feature:', error);
+                    this.showNotification('Error updating feature status');
+                }
             }
 
             async addFeature() {
@@ -558,14 +834,10 @@
                 const description = document.getElementById('featureDescription').value.trim();
                 const status = document.getElementById('featureStatus').value;
 
-                if (!title) {
-                    this.showNotification('Please enter a feature title', 'error');
+                if (!title || !description) {
+                    this.showNotification('Please fill in all required fields');
                     return;
                 }
-
-                const addBtn = document.getElementById('addFeatureBtn');
-                addBtn.disabled = true;
-                addBtn.textContent = 'Adding...';
 
                 try {
                     const response = await fetch('/api/features', {
@@ -578,60 +850,76 @@
                             description,
                             status,
                             addedBy: 'admin'
-                        })
+                        }),
                     });
 
                     if (response.ok) {
-                        this.showNotification('✨ Feature added successfully!', 'success');
-                        document.getElementById('addFeatureForm').reset();
-                        this.loadFeatures();
+                        this.showNotification('Feature added successfully!');
+                        document.getElementById('featureForm').reset();
+                        this.loadFeatures(); // Reload features
                     } else {
-                        const error = await response.json();
-                        this.showNotification(error.error || 'Failed to add feature', 'error');
+                        this.showNotification('Error adding feature');
                     }
                 } catch (error) {
                     console.error('Error adding feature:', error);
-                    this.showNotification('Error adding feature', 'error');
-                } finally {
-                    addBtn.disabled = false;
-                    addBtn.textContent = 'Add Feature';
+                    this.showNotification('Error adding feature');
                 }
             }
 
-            async updateFeatureStatus(featureId, status) {
+            openEditModal(featureId) {
+                const feature = this.features.find(f => f.id === featureId);
+                if (!feature) return;
+
+                this.editingFeatureId = featureId;
+                document.getElementById('editFeatureTitle').value = feature.title;
+                document.getElementById('editFeatureDescription').value = feature.description;
+                document.getElementById('editFeatureStatus').value = feature.status;
+                document.getElementById('editFeatureComment').value = feature.ai_core_comment || '';
+                document.getElementById('editModal').style.display = 'block';
+            }
+
+            async updateFeature() {
+                if (!this.editingFeatureId) return;
+
+                const title = document.getElementById('editFeatureTitle').value.trim();
+                const description = document.getElementById('editFeatureDescription').value.trim();
+                const status = document.getElementById('editFeatureStatus').value;
+                const ai_core_comment = document.getElementById('editFeatureComment').value.trim();
+
+                if (!title || !description) {
+                    this.showNotification('Please fill in all required fields');
+                    return;
+                }
+
                 try {
-                    const response = await fetch(`/api/features/${featureId}/status`, {
+                    const response = await fetch(`/api/features/${this.editingFeatureId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ status })
+                        body: JSON.stringify({
+                            title,
+                            description,
+                            status,
+                            ai_core_comment
+                        }),
                     });
 
                     if (response.ok) {
-                        this.showNotification('Status updated successfully!', 'success');
-                        // Update local data
-                        const feature = this.features.find(f => f.id === featureId);
-                        if (feature) {
-                            feature.status = status;
-                        }
+                        this.showNotification('Feature updated successfully!');
+                        this.closeEditModal();
+                        this.loadFeatures(); // Reload features
                     } else {
-                        const error = await response.json();
-                        this.showNotification(error.error || 'Failed to update status', 'error');
+                        this.showNotification('Error updating feature');
                     }
                 } catch (error) {
-                    console.error('Error updating status:', error);
-                    this.showNotification('Error updating status', 'error');
+                    console.error('Error updating feature:', error);
+                    this.showNotification('Error updating feature');
                 }
             }
 
-            async deleteFeature(featureId, featureTitle) {
-                // Show confirmation dialog
-                const confirmed = confirm(`Are you sure you want to delete "${featureTitle}"?\n\nThis action cannot be undone and will also remove all votes for this feature.`);
-                
-                if (!confirmed) {
-                    return;
-                }
+            async deleteFeature(featureId) {
+                if (!confirm('Are you sure you want to delete this feature?')) return;
 
                 try {
                     const response = await fetch(`/api/features/${featureId}`, {
@@ -639,28 +927,175 @@
                     });
 
                     if (response.ok) {
-                        this.showNotification('Feature deleted successfully!', 'success');
-                        this.loadFeatures(); // Reload the features list
+                        this.showNotification('Feature deleted successfully!');
+                        this.loadFeatures(); // Reload features
                     } else {
-                        const error = await response.json();
-                        this.showNotification(error.error || 'Failed to delete feature', 'error');
+                        this.showNotification('Error deleting feature');
                     }
                 } catch (error) {
                     console.error('Error deleting feature:', error);
-                    this.showNotification('Error deleting feature', 'error');
+                    this.showNotification('Error deleting feature');
                 }
             }
 
-            showNotification(message, type = 'success') {
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                notification.textContent = message;
-                document.body.appendChild(notification);
+            async convertToWorkItem(featureId) {
+                const feature = this.features.find(f => f.id === featureId);
+                if (!feature) return;
 
-                setTimeout(() => notification.classList.add('show'), 100);
+                if (!confirm(`Convert "${feature.title}" to Our Work item?`)) return;
+
+                try {
+                    // Create work item
+                    const workItemData = {
+                        title: feature.title,
+                        description: feature.description,
+                        category: 'evaluation', // Default category
+                        impact: 'medium',
+                        target_date: '',
+                        status: 'not_started'
+                    };
+
+                    const response = await fetch('/api/internal-work-items', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(workItemData)
+                    });
+
+                    if (response.ok) {
+                        this.showNotification('Feature converted to Our Work item!');
+                    } else {
+                        this.showNotification('Error converting feature');
+                    }
+                } catch (error) {
+                    console.error('Error converting feature:', error);
+                    this.showNotification('Error converting feature');
+                }
+            }
+
+            async convertToCohereItem(featureId) {
+                const feature = this.features.find(f => f.id === featureId);
+                if (!feature) return;
+
+                if (!confirm(`Convert "${feature.title}" to Cohere item?`)) return;
+
+                try {
+                    // Create cohere item
+                    const cohereItemData = {
+                        title: feature.title,
+                        description: feature.description,
+                        category: 'features', // Default to feature request
+                        status: 'open',
+                        link: ''
+                    };
+
+                    const response = await fetch('/api/cohere-items', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(cohereItemData)
+                    });
+
+                    if (response.ok) {
+                        this.showNotification('Feature converted to Cohere item!');
+                    } else {
+                        this.showNotification('Error converting feature');
+                    }
+                } catch (error) {
+                    console.error('Error converting feature:', error);
+                    this.showNotification('Error converting feature');
+                }
+            }
+
+            closeEditModal() {
+                this.editingFeatureId = null;
+                document.getElementById('editModal').style.display = 'none';
+            }
+
+            setSort(sort) {
+                this.currentSort = sort;
+                document.querySelectorAll('.sort-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-sort="${sort}"]`).classList.add('active');
+                this.renderFeatures();
+            }
+
+            bindEvents() {
+                // Add feature form
+                document.getElementById('featureForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addFeature();
+                });
+
+                // Edit form
+                document.getElementById('editForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.updateFeature();
+                });
+
+                // Sort buttons
+                document.querySelectorAll('.sort-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.setSort(e.target.dataset.sort);
+                    });
+                });
+
+                // Event delegation for dynamic elements
+                document.addEventListener('change', (e) => {
+                    if (e.target.classList.contains('status-select')) {
+                        const featureId = parseInt(e.target.dataset.featureId);
+                        const newStatus = e.target.value;
+                        this.updateFeatureStatus(featureId, newStatus);
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('edit-btn')) {
+                        const featureId = parseInt(e.target.dataset.featureId);
+                        this.openEditModal(featureId);
+                    }
+                    
+                    if (e.target.classList.contains('delete-btn')) {
+                        const featureId = parseInt(e.target.dataset.featureId);
+                        this.deleteFeature(featureId);
+                    }
+
+                    if (e.target.classList.contains('convert-work-btn')) {
+                        const featureId = parseInt(e.target.dataset.featureId);
+                        this.convertToWorkItem(featureId);
+                    }
+
+                    if (e.target.classList.contains('convert-cohere-btn')) {
+                        const featureId = parseInt(e.target.dataset.featureId);
+                        this.convertToCohereItem(featureId);
+                    }
+                });
+
+                // Close modal when clicking outside or on close button
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('close')) {
+                        this.closeEditModal();
+                    }
+                });
+
+                window.onclick = (event) => {
+                    const modal = document.getElementById('editModal');
+                    if (event.target === modal) {
+                        this.closeEditModal();
+                    }
+                }
+            }
+
+            showNotification(message) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.classList.add('show');
+                
                 setTimeout(() => {
                     notification.classList.remove('show');
-                    setTimeout(() => notification.remove(), 300);
                 }, 3000);
             }
 
@@ -671,8 +1106,27 @@
             }
         }
 
+
         // Initialize admin panel
         const adminPanel = new AdminPanel();
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
     </script>
 </body>
 </html>
