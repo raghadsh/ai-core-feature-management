@@ -167,6 +167,11 @@
     </div>
 
     <script>
+        // Add click event to button as backup
+        document.querySelector('.login-btn').addEventListener('click', function(e) {
+            console.log('Login button clicked!');
+        });
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             console.log('Form submitted!');
@@ -190,6 +195,7 @@
             submitBtn.disabled = true;
             
             try {
+                console.log('Making request to /admin...');
                 const response = await fetch('/admin', {
                     method: 'GET',
                     headers: {
@@ -198,6 +204,7 @@
                 });
                 
                 console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
                 
                 if (response.ok) {
                     // Store credentials for future requests
@@ -206,6 +213,8 @@
                     window.location.href = '/admin';
                 } else {
                     console.log('Login failed, status:', response.status);
+                    const responseText = await response.text();
+                    console.log('Response text:', responseText.substring(0, 200));
                     errorMessage.textContent = 'Invalid username or password';
                     errorMessage.style.display = 'block';
                 }
