@@ -10,15 +10,20 @@
     "populate": "node populate-database.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "sqlite3": "^5.1.6",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "body-parser": "^1.20.2"
+    "express": "^4.18.2",
+    "express-session": "^1.18.2",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["feature-management", "voting", "roadmap"],
+  "keywords": [
+    "feature-management",
+    "voting",
+    "roadmap"
+  ],
   "author": "AI Core Team",
   "license": "MIT"
 }

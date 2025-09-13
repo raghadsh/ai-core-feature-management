@@ -3,6 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,8 +13,22 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+// Session middleware
+app.use(session({
+    secret: 'ai-core-secret-key-2024',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+}));
+
 // Simple authentication middleware
 function requireAuth(req, res, next) {
+    // Check if user is authenticated via session
+    if (req.session && req.session.authenticated) {
+        return next();
+    }
+    
+    // Check for Basic Auth header (for initial login)
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -29,6 +44,9 @@ function requireAuth(req, res, next) {
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'aicore2024';
     
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        // Set session as authenticated
+        req.session.authenticated = true;
+        req.session.username = username;
         next();
     } else {
         // Redirect to custom login page instead of showing browser dialog
@@ -38,12 +56,39 @@ function requireAuth(req, res, next) {
 
 // Login route
 app.get('/login', (req, res) => {
+    // If already authenticated, redirect to admin
+    if (req.session && req.session.authenticated) {
+        return res.redirect('/admin');
+    }
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Login API endpoint
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    // Simple hardcoded credentials (you can change these)
+    const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'aicore2024';
+    
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        // Set session as authenticated
+        req.session.authenticated = true;
+        req.session.username = username;
+        res.json({ success: true, message: 'Login successful' });
+    } else {
+        res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
 });
 
 // Logout route
 app.get('/logout', (req, res) => {
-    res.redirect('/login');
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+        }
+        res.redirect('/login');
+    });
 });
 
 // Admin route
