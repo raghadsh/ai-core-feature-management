@@ -129,6 +129,18 @@
             color: white !important;
         }
 
+        .nav-links .logout-btn {
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+            color: #fca5a5 !important;
+        }
+
+        .nav-links .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: rgba(239, 68, 68, 0.6) !important;
+            color: #fecaca !important;
+        }
+
         .container {
             display: grid;
             grid-template-columns: 1fr 400px;
@@ -642,6 +654,7 @@
                 <a href="/" class="nav-link">🌐 Public View</a>
                 <a href="/admin" class="nav-link active">⚙️ Admin Panel</a>
                 <a href="/coe" class="nav-link">🔬 Our Board</a>
+                <a href="/logout" class="nav-link logout-btn">🚪 Logout</a>
             </div>
         </div>
     </nav>
@@ -733,6 +746,16 @@
     <div class="notification" id="notification"></div>
 
     <script>
+        // Clear session storage on logout
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.querySelector('.logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    sessionStorage.removeItem('adminAuth');
+                });
+            }
+        });
+
         class AdminPanel {
             constructor() {
                 this.features = [];

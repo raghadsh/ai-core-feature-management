@@ -124,6 +124,18 @@
             color: white;
         }
 
+        .nav-links .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .nav-links .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.6);
+            color: #fecaca;
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -1268,6 +1280,7 @@
                 <a href="/" class="nav-link">🌐 Public View</a>
                 <a href="/admin" class="nav-link">⚙️ Admin Panel</a>
                 <a href="/coe" class="nav-link active">🔬 Our Board</a>
+                <a href="/logout" class="nav-link logout-btn">🚪 Logout</a>
             </div>
         </div>
     </nav>
@@ -1601,6 +1614,16 @@
     </div>
 
     <script>
+        // Clear session storage on logout
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.querySelector('.logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    sessionStorage.removeItem('adminAuth');
+                });
+            }
+        });
+
         class CoEBoard {
             constructor() {
                 this.workItems = [];

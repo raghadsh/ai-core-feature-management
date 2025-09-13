@@ -41,6 +41,11 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
+// Logout route
+app.get('/logout', (req, res) => {
+    res.redirect('/login');
+});
+
 // Admin route
 app.get('/admin', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
