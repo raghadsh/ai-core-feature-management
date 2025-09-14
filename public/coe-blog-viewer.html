@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CoE Internal Blog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .nav-link {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .blog-post {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .blog-header {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .blog-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .blog-meta {
+            display: flex;
+            gap: 2rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .blog-content {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .blog-content h1,
+        .blog-content h2,
+        .blog-content h3,
+        .blog-content h4,
+        .blog-content h5,
+        .blog-content h6 {
+            color: #f1f5f9;
+            margin: 1.5rem 0 0.75rem 0;
+            font-weight: 600;
+        }
+
+        .blog-content h1 { font-size: 1.75rem; }
+        .blog-content h2 { font-size: 1.5rem; }
+        .blog-content h3 { font-size: 1.25rem; }
+        .blog-content h4 { font-size: 1.1rem; }
+        .blog-content h5 { font-size: 1rem; }
+        .blog-content h6 { font-size: 0.9rem; }
+
+        .blog-content p {
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+        }
+
+        .blog-content code {
+            background: rgba(139, 92, 246, 0.15);
+            color: #e2e8f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 0.85em;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .blog-content pre {
+            background: rgba(15, 15, 35, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .blog-content pre[class*="language-"]::before {
+            content: attr(class);
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .blog-content pre code {
+            background: none;
+            padding: 0;
+            color: #e2e8f0;
+            border: none;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .blog-content ul,
+        .blog-content ol {
+            margin: 1rem 0 1rem 1.5rem;
+            color: #cbd5e1;
+        }
+
+        .blog-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .blog-content ul li {
+            list-style-type: disc;
+        }
+
+        .blog-content ol li {
+            list-style-type: decimal;
+        }
+
+        .blog-content blockquote {
+            border-left: 4px solid #8b5cf6;
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .blog-content a {
+            color: #8b5cf6;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .blog-content a:hover {
+            color: #a855f7;
+        }
+
+        .blog-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: rgba(15, 15, 35, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .blog-content th,
+        .blog-content td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .blog-content th {
+            background: rgba(139, 92, 246, 0.1);
+            color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        .blog-content td {
+            color: #cbd5e1;
+        }
+
+        .blog-content hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+            margin: 2rem 0;
+        }
+
+        .blog-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #94a3b8;
+        }
+
+        .error {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .blog-post {
+                padding: 2rem;
+            }
+            
+            .blog-title {
+                font-size: 1.5rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 AI CoE Internal Blog</h1>
+            
+            <div class="nav-links">
+                <a href="/coe/blog" class="nav-link">← Back to Blog</a>
+                <a href="/coe" class="nav-link">CoE Board</a>
+                <a href="/admin" class="nav-link">Admin Panel</a>
+                <a href="/logout" class="nav-link">Logout</a>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            Loading blog post...
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            Blog post not found or error loading content.
+        </div>
+
+        <article id="blogPost" class="blog-post" style="display: none;">
+            <div class="blog-header">
+                <h1 id="postTitle" class="blog-title"></h1>
+                <div id="postMeta" class="blog-meta"></div>
+            </div>
+            <div id="postContent" class="blog-content"></div>
+        </article>
+    </div>
+
+    <script src="https://unpkg.com/marked@4.3.0/marked.min.js"></script>
+    <script src="https://unpkg.com/gray-matter@4.0.3/dist/gray-matter.min.js"></script>
+    <script src="https://unpkg.com/dompurify@3.0.5/dist/purify.min.js"></script>
+    <script>
+        // Configure marked for better rendering
+        marked.setOptions({
+            highlight: function(code, lang) {
+                // Simple syntax highlighting
+                return code;
+            },
+            breaks: true,
+            gfm: true
+        });
+
+        function convertMDXToHTML(mdxContent) {
+            // Use marked for proper Markdown/MDX rendering
+            const html = marked.parse(mdxContent);
+            return html;
+        }
+
+        function parseFrontmatter(content) {
+            const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
+            const match = content.match(frontmatterRegex);
+            
+            if (match) {
+                const frontmatterText = match[1];
+                const content = match[2];
+                
+                // Parse frontmatter
+                const frontmatter = {};
+                frontmatterText.split('\n').forEach(line => {
+                    const [key, ...valueParts] = line.split(':');
+                    if (key && valueParts.length > 0) {
+                        frontmatter[key.trim()] = valueParts.join(':').trim().replace(/['"]/g, '');
+                    }
+                });
+                
+                return { frontmatter, content };
+            }
+            
+            return { frontmatter: {}, content };
+        }
+
+        async function loadBlogPost() {
+            const slug = window.location.pathname.split('/').pop();
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const blogPost = document.getElementById('blogPost');
+            
+            try {
+                const response = await fetch(`/coe/blog/${slug}.mdx`);
+                if (!response.ok) {
+                    throw new Error('Blog post not found');
+                }
+                
+                const mdxContent = await response.text();
+                const { frontmatter, content } = parseFrontmatter(mdxContent);
+                
+                // Update title
+                document.title = `${frontmatter.title || 'Untitled'} - AI CoE Internal Blog`;
+                
+                // Update post title
+                document.getElementById('postTitle').textContent = frontmatter.title || 'Untitled';
+                
+                // Update meta information
+                const meta = document.getElementById('postMeta');
+                meta.innerHTML = `
+                    <span>By ${frontmatter.author || 'AI CoE Team'}</span>
+                    <span>${new Date(frontmatter.date || new Date()).toLocaleDateString()}</span>
+                    ${frontmatter.category ? `<span>Category: ${frontmatter.category}</span>` : ''}
+                `;
+                
+                // Convert and display content
+                const htmlContent = convertMDXToHTML(content);
+                const sanitizedContent = DOMPurify.sanitize(htmlContent);
+                document.getElementById('postContent').innerHTML = sanitizedContent;
+                
+                // Show the blog post
+                loading.style.display = 'none';
+                blogPost.style.display = 'block';
+                
+            } catch (err) {
+                console.error('Error loading blog post:', err);
+                loading.style.display = 'none';
+                error.style.display = 'block';
+            }
+        }
+
+        // Load blog post on page load
+        document.addEventListener('DOMContentLoaded', loadBlogPost);
+    </script>
+</body>
+</html>

@@ -122,6 +122,27 @@ app.get('/coe', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'coe.html'));
 });
 
+// CoE Blog routes
+app.get('/coe/blog', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'coe-blog', 'index.html'));
+});
+
+app.get('/coe/blog/:slug', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'coe-blog-viewer.html'));
+});
+
+app.get('/coe/blog/:slug.mdx', requireAuth, (req, res) => {
+    const slug = req.params.slug;
+    const filePath = path.join(__dirname, 'public', 'coe-blog', `${slug}.mdx`);
+    
+    // Check if file exists
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        res.status(404).send('CoE Blog post not found');
+    }
+});
+
 // Database setup - use persistent path for Render
 const dbPath = process.env.NODE_ENV === 'production' 
     ? '/tmp/features.db'  // Use /tmp directory which persists on Render

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CoE Internal Blog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .nav-link {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .blog-card {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6, #a855f7, #c084fc);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+        }
+
+        .blog-card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 0.75rem;
+        }
+
+        .blog-card .excerpt {
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .read-more {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .read-more:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .coming-soon {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(15, 15, 35, 0.5);
+            border-radius: 15px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .coming-soon h2 {
+            color: #8b5cf6;
+            margin-bottom: 1rem;
+        }
+
+        .coming-soon p {
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 AI CoE Internal Blog</h1>
+            <p>Internal documentation, updates, and knowledge sharing for the AI CoE team</p>
+            
+            <div class="nav-links">
+                <a href="/coe" class="nav-link">← Back to CoE Board</a>
+                <a href="/admin" class="nav-link">Admin Panel</a>
+                <a href="/logout" class="nav-link">Logout</a>
+            </div>
+        </div>
+
+        <div id="blogPosts" class="blog-grid">
+            <!-- Blog posts will be loaded here -->
+        </div>
+
+        <div class="coming-soon" id="comingSoon" style="display: none;">
+            <h2>🚧 Coming Soon</h2>
+            <p>We're working on some internal documentation and updates. Check back soon for technical insights, team updates, and internal knowledge sharing!</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/marked@4.3.0/marked.min.js"></script>
+    <script>
+        // Configure marked for better rendering
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+
+        // Known CoE blog posts
+        const coeBlogSlugs = [
+            'evaluation-pipeline-update',
+            'mcp-tools-roadmap',
+            'team-meeting-notes',
+            'infrastructure-improvements'
+        ];
+
+        async function loadCoEBlogPosts() {
+            const container = document.getElementById('blogPosts');
+            const comingSoon = document.getElementById('comingSoon');
+            
+            try {
+                const posts = [];
+                
+                for (const slug of coeBlogSlugs) {
+                    try {
+                        const response = await fetch(`/coe/blog/${slug}.mdx`);
+                        if (response.ok) {
+                            const mdxContent = await response.text();
+                            
+                            // Simple frontmatter parsing
+                            const frontmatterMatch = mdxContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+                            if (frontmatterMatch) {
+                                const frontmatterText = frontmatterMatch[1];
+                                const content = frontmatterMatch[2];
+                                
+                                // Parse frontmatter
+                                const frontmatter = {};
+                                frontmatterText.split('\n').forEach(line => {
+                                    const [key, ...valueParts] = line.split(':');
+                                    if (key && valueParts.length > 0) {
+                                        frontmatter[key.trim()] = valueParts.join(':').trim().replace(/['"]/g, '');
+                                    }
+                                });
+                                
+                                // Create excerpt from content (first 150 characters)
+                                const excerpt = content.replace(/[#*`]/g, '').substring(0, 150).trim() + '...';
+                                
+                                posts.push({
+                                    title: frontmatter.title || 'Untitled',
+                                    excerpt: frontmatter.excerpt || excerpt,
+                                    author: frontmatter.author || 'AI CoE Team',
+                                    date: frontmatter.date || new Date().toISOString().split('T')[0],
+                                    category: frontmatter.category || 'General',
+                                    slug: slug
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.warn(`Could not load CoE blog post: ${slug}`, error);
+                    }
+                }
+
+                if (posts.length === 0) {
+                    container.style.display = 'none';
+                    comingSoon.style.display = 'block';
+                    return;
+                }
+
+                // Sort by date (newest first)
+                posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                container.innerHTML = posts.map(post => `
+                    <article class="blog-card">
+                        <div class="blog-meta">
+                            <span>By ${post.author}</span>
+                            <span>${new Date(post.date).toLocaleDateString()}</span>
+                        </div>
+                        <h2>${post.title}</h2>
+                        <p class="excerpt">${post.excerpt}</p>
+                        <div style="margin-bottom: 1rem;">
+                            <span style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">${post.category}</span>
+                        </div>
+                        <a href="/coe/blog/${post.slug}" class="read-more">Read More</a>
+                    </article>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading CoE blog posts:', error);
+                container.style.display = 'none';
+                comingSoon.style.display = 'block';
+            }
+        }
+
+        // Load blog posts on page load
+        document.addEventListener('DOMContentLoaded', loadCoEBlogPosts);
+    </script>
+</body>
+</html>
