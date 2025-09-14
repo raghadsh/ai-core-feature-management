@@ -127,20 +127,21 @@ app.get('/coe/blog', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'coe-blog', 'index.html'));
 });
 
-app.get('/coe/blog/:slug', requireAuth, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'coe-blog-viewer.html'));
-});
-
-app.get('/coe/blog/:slug.mdx', requireAuth, (req, res) => {
+// MDX files route must come before the general slug route
+app.get('/coe/blog/:slug.mdx', (req, res) => {
     const slug = req.params.slug;
     const filePath = path.join(__dirname, 'public', 'coe-blog', `${slug}.mdx`);
     
     // Check if file exists
-    if (fs.existsSync(filePath)) {
+    if (require('fs').existsSync(filePath)) {
         res.sendFile(filePath);
     } else {
         res.status(404).send('CoE Blog post not found');
     }
+});
+
+app.get('/coe/blog/:slug', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'coe-blog-viewer.html'));
 });
 
 // Database setup - use persistent path for Render
