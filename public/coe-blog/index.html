@@ -228,7 +228,7 @@
                 
                 for (const slug of coeBlogSlugs) {
                     try {
-                        const response = await fetch(`/coe/blog/${slug}.mdx`);
+                        const response = await fetch(`/coe/blog/${slug}.mdx?v=${Date.now()}`);
                         if (response.ok) {
                             const mdxContent = await response.text();
                             

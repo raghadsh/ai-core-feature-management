@@ -359,7 +359,7 @@
             const blogPost = document.getElementById('blogPost');
             
             try {
-                const response = await fetch(`/coe/blog/${slug}.mdx`);
+                const response = await fetch(`/coe/blog/${slug}.mdx?v=${Date.now()}`);
                 if (!response.ok) {
                     throw new Error('Blog post not found');
                 }
